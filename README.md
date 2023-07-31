@@ -18,5 +18,7 @@ CONTROLS:
 - posterize: this will limit the amount of colors in the image prior to pixelating it, causing the image to have more contrast, set to 20 for maximum effect.
 - download image: this will download a true pixelated version of your edited image in the pixel size determined by the size input.
 
+
 This editor is a work in progress, if you have any feedback i would love to hear it <3  
+
 If you would like to support the project you can do so by sharing some art you make with the editor and tagging me on twitter @tezumies :)
