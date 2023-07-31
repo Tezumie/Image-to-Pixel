@@ -575,3 +575,39 @@ function checkInputValue(inputElement) {
     inputElement.value = minValue;
   }
 }
+function uploadImageFile() {
+  let fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.onchange = function (evt) {
+    evt.preventDefault();
+    let files = evt.target.files;
+    if (files.length > 0) {
+      let file = files[0];
+      if (file.type.match("image.*")) {
+        currentColumn = 0;
+        clear();
+        img = loadImage(URL.createObjectURL(file), function () {
+          loop();
+          resizeCanvasToWindowSize();
+          if (!buffer) {
+            buffer = createGraphics(floor(width), floor(height));
+          }
+          image(img, 0, 0, width, height);
+          buffer.copy(
+            Canvas,
+            0,
+            0,
+            floor(width),
+            floor(height),
+            0,
+            0,
+            buffer.width,
+            buffer.height
+          );
+          canPixelate = true;
+        });
+      }
+    }
+  };
+  fileInput.click();
+}
