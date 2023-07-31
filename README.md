@@ -7,7 +7,7 @@ Use the editor online here: https://tezumie.github.io/Image-to-Pixel/
 ![portrait5](https://github.com/Tezumie/Image-to-Pixel/assets/102488626/6c92e894-c8ae-4f34-8cd0-7eba2eae4d5c)
 
 CONTROLS:
-- upload palette: you can download hex files from lospec and upload them here the file format must be ".hex".
+- upload palette: you can download hex files from lospec and upload them here, the file format must be ".hex".
 - download palette: you can save your custom palettes by downloading them in hex format.
 - select menu: choose a palette.
 - "+": the plus sign allows you to add a new color to your palette.
