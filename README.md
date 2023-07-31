@@ -8,6 +8,8 @@ Use the editor online here: https://tezumie.github.io/Image-to-Pixel/
 
 
 CONTROLS:
+- upload image: select a file to upload.
+- download image: this will download a true pixelated version of your edited image in the pixel size determined by the size input.
 - upload palette: you can download hex files from lospec and upload them here, the file format must be ".hex". https://lospec.com/palette-list
 - download palette: you can save your custom palettes by downloading them in hex format.
 - select menu: choose a palette.
@@ -17,7 +19,6 @@ CONTROLS:
 - dither amount: the total dither steps, increasing this could make the dither look less intense.
 - dither style: select a dither style.
 - posterize: this will limit the amount of colors in the image prior to pixelating it, causing the image to have more contrast, set to 20 for maximum effect.
-- download image: this will download a true pixelated version of your edited image in the pixel size determined by the size input.
 
 
 This editor is a work in progress, if you have any feedback i would love to hear it <3  
