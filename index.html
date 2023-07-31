@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Color Picker and Mouse Ball</title>
+    <style>
+      body {
+        background-color: rgb(19, 21, 22, 1);
+        margin: 0;
+      }
+      #headerContainer {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        padding: 20px;
+        color: rgb(78, 174, 233, 1);
+        background-color: rgb(19, 21, 22, 0.75);
+        height: 40px;
+        min-height: 40px;
+        overflow-x: auto;
+        margin-top: 0px;
+        margin-bottom: 5px;
+        z-index: 1;
+        white-space: nowrap;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(78, 174, 233, 1) rgb(10, 20, 20, 1);
+      }
+      #headerContainer>* {
+        margin-right: 5px;
+        margin-left: 5px;
+        margin-top: 5px;
+      }
+      #headerContainer button {
+        padding: 5px 6px;
+        border: 1px solid #ccc;
+        background-color: rgb(19, 21, 22, 1);
+        color: rgb(78, 174, 233, 1);
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 12px;
+        font-family: Arial, sans-serif;
+      }
+      #fileInput {
+        display: none;
+      }
+      #headerContainer {
+        border: 1px solid #ccc;
+        font-weight: default;
+        padding: 6px 5px;
+        cursor: pointer;
+        background-color: rgb(19, 21, 22, 1);
+        color: rgb(78, 174, 233, 1);
+        border-radius: 5px;
+        cursor: default;
+
+      }
+      .custom-file-upload input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      #colorPickers {
+        margin-top: 60px;
+        overflow-x: auto;
+        white-space: nowrap;
+        background-color: rgb(19, 21, 22, 1);
+        scrollbar-width: thin;
+        scrollbar-color: rgb(78, 174, 233, 1) rgb(10, 20, 20, 1);
+        cursor: pointer;
+      }
+      #headerContainer .custom-file-upload {
+        border: 1px solid #ccc;
+        font-weight: default;
+        padding: 5px 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: rgb(19, 21, 22, 1);
+        color: rgb(78, 174, 233, 1);
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+      }
+      #headerContainer .custom-file-upload:hover,
+      #headerContainer :hover {
+        background-color: rgb(78, 174, 233, 1);
+        color: rgb(19, 21, 22, 1);
+      }
+      #colorPickers :hover {
+        background-color: rgb(78, 174, 233, 1);
+        color: rgb(19, 21, 22, 1);
+        cursor: pointer;
+      }
+      #arrowBox {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+        width: 100px;
+        height: 100px;
+        background-color: rgb(10, 15, 15, 1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #arrowUp {
+        width: 0;
+        height: 0;
+        border-left: 50px solid transparent;
+        border-right: 50px solid transparent;
+        border-bottom: 50px solid rgb(78, 174, 233, 1);
+        ;
+      }
+      #label {
+        margin-top: 150px;
+        color: white;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+
+      }
+      #labelContainer {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+        /* Place the arrow box behind the canvas */
+        text-align: center;
+      }
+      #colorPickers :focus {
+        background-color: rgb(78, 174, 233, 1);
+        color: rgb(19, 21, 22, 1);
+        cursor: pointer;
+      }
+      input[type="color"] {
+        -webkit-appearance: none;
+        border: none;
+        width: 32px;
+        height: 32px;
+        background-color: rgb(10, 15, 15, 1);
+      }
+      input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+
+      }
+      input[type="color"]::-webkit-color-swatch {
+        border: none;
+
+      }
+      #ditherStyleInput {
+         width: 85px;
+
+      }
+      #posterizeAmntInput,
+      #gridSizeInput,
+      #ditherInput {
+        width: 45px;
+      }
+      #ditherStyleInput option,
+      #paletteSelector,
+      #paletteSelector option {
+        width: 150px;
+        cursor: pointer;
+        background-color: white;
+        color: black;
+        cursor: pointer;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  </head>
+  <body>
+    <div id="headerContainer">
+      <label for="fileInput" class="custom-file-upload"> Upload Palette </label>
+      <input type="file" id="fileInput" title="&nbsp;" />
+      <button id="downloadPalette">Download Palette</button>
+      <select id="paletteSelector"></select>
+      <button id="addColorPicker">+</button>
+      <button id="removeColorPicker">🗑️</button>
+      <label for="gridSizeInput">Size:</label>
+      <input type="number" id="gridSizeInput" value="224" min="1" max="4000" />
+      <label for="ditherInput">Dither Amount:</label>
+      <input type="number" id="ditherInput" value="12" min="1" max="255" />
+      <label for="ditherStyleInput">Dither Style:</label>
+      <select id="ditherStyleInput"></select>
+      <label for="posterizeAmntInput">posterize:</label>
+      <input
+        type="number"
+        id="posterizeAmntInput"
+        value="0"
+        min="0"
+        max="20"
+        oninput="checkInputValue(this)"
+      />
+      <button id="downloadImage-button">Download Image</button>
+    </div>
+    <div id="colorPickers">
+      <div id="colorPickerBoxid" class="colorPickerBox"></div>
+    </div>
+    <div id="labelContainer">
+      <div id="arrowBox">
+        <div id="arrowUp"></div>
+      </div>
+      <div id="label">Drag and Drop Image to Pixelate</div>
+    </div>
+    <script src="sketch.js"></script>
+    <script src="palette.js"></script>
+  </body>
+</html>
