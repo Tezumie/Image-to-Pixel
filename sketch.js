@@ -149,7 +149,7 @@ function ditherImage(myImage, steps, ditherMatrix) {
       [63, 31, 55, 23, 61, 29, 53, 21],
     ];
   } else if (ditherMatrix == 4) {
-    // 3x3 Bayer Matrix (Ordered Dithering)
+    // 2x2 Bayer Matrix (Ordered Dithering)
     ditherMatrix = [
       [3, 7, 4],
       [6, 1, 9],
