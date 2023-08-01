@@ -25,5 +25,5 @@ This editor is a work in progress, if you have any feedback i would love to hear
 
 If you would like to support the project you can do so by sharing some art you make with the editor and tagging me on twitter @tezumies :)  
 
-- I wonderfully built full app you can use for pixelation with even more options, even animation!  
+- For even more pixelating goodness try this wonderfully built full app you can use with even more options, even animation!  
 - https://winterveil.itch.io/ditherdragon
