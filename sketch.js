@@ -25,7 +25,7 @@ const ditherStyleNames = [
   "Floyd-Steinberg",
   "4x4 Bayer",
   "8x8 Bayer",
-  "3x3 Bayer",
+  "2x2 Bayer",
   "Jarvis-Judice-Ninke",
   "Stucki",
   "Sierra",
