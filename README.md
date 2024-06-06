@@ -23,7 +23,11 @@ CONTROLS:
 
 This editor is a work in progress, if you have any feedback i would love to hear it <3  
 
+### Support
+
 If you would like to support the project you can do so by sharing some art you make with the editor and tagging me on twitter @tezumies :)  
 
 - For more pixelating goodness try this wonderfully built full app you can use with more options, even animation!  
 - https://winterveil.itch.io/ditherdragon
+
+You can also consider [becoming a patron](https://www.patreon.com/aijscodeeditor).
