@@ -9,6 +9,17 @@
  * @param {string} [options.resolution='original'] - 'pixel' for pixelated size, 'original' for original size.
  * @returns {Promise<HTMLCanvasElement|p5.Image|Q5.Image>} - A promise that resolves to a canvas element, p5.Image, or Q5.Image object.
  */
+/**
+ * Pixelate and dither an image.
+ * @param {Object} options - Configuration options.
+ * @param {HTMLCanvasElement|HTMLImageElement|p5.Renderer|p5.Image|Q5.Image|ImageData|string} options.image - Image object, p5 canvas, q5 canvas, ImageData, or URL.
+ * @param {number} options.width - Number of pixels wide for the pixelated image.
+ * @param {string} [options.dither='none'] - Dithering method: 'none', 'Floyd-Steinberg', 'ordered', '2x2 Bayer', '4x4 Bayer'.
+ * @param {number} [options.strength=0] - Dithering strength (0-100).
+ * @param {string|Array} [options.palette=null] - Palette name from Lospec or an array of colors.
+ * @param {string} [options.resolution='original'] - 'pixel' for pixelated size, 'original' for original size.
+ * @returns {Promise<HTMLCanvasElement|p5.Image|Q5.Image>} - A promise that resolves to a canvas element, p5.Image, or Q5.Image object.
+ */
 async function pixelate(options) {
     const {
         image,
@@ -22,17 +33,9 @@ async function pixelate(options) {
     if (!image || !width) {
         throw new Error('Image and width parameters are required.');
     }
-
     // Check for p5 and Q5 availability
     const isP5Available = typeof p5 !== 'undefined';
     const isQ5Available = typeof Q5 !== 'undefined';
-
-    // Check if the input source is a p5 or Q5 type using safer type checks
-    const isP5Source = isP5Available && (
-        (typeof p5.Renderer !== 'undefined' && image instanceof p5.Renderer) ||
-        (typeof p5.Image !== 'undefined' && image instanceof p5.Image)
-    );
-    const isQ5Source = isQ5Available && typeof Q5.Image !== 'undefined' && image instanceof Q5.Image;
 
     // Load the image with support for multiple input formats
     const originalImageObject = await loadOriginalImage(image);
@@ -59,26 +62,89 @@ async function pixelate(options) {
     offscreenCanvas.height = pixelsHigh;
     const offscreenCtx = offscreenCanvas.getContext('2d');
 
-    // Draw image to offscreen canvas
+    // Draw the original image onto the offscreen canvas
     offscreenCtx.drawImage(
         originalImageObject,
         0, 0, originalImageObject.width, originalImageObject.height,
         0, 0, pixelsWide, pixelsHigh
     );
 
-    // Get image data
+    // Get image data for manipulation
     let pixelatedData = offscreenCtx.getImageData(0, 0, pixelsWide, pixelsHigh);
 
     // Apply dithering and palette
-    const ditheringStrength = strength / 100; // Normalize strength
+    const ditheringStrength = strength / 100; // Normalize strength to 0-1 range
     if (paletteColors && dither.toLowerCase() !== 'none') {
         if (dither.toLowerCase() === 'floyd-steinberg') {
-            pixelatedData = floydSteinbergDithering(
-                pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors
-            );
+            pixelatedData = floydSteinbergDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors);
         } else if (dither.toLowerCase() === 'ordered') {
-            // Use 8x8 Bayer matrix for ordered dithering
-            const bayerMatrix = [
+            const bayerMatrix = getBayerMatrix('8x8');
+            pixelatedData = orderedDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, bayerMatrix);
+        } else if (dither.toLowerCase() === '4x4 bayer') {
+            const bayerMatrix = getBayerMatrix('4x4');
+            pixelatedData = orderedDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, bayerMatrix);
+        } else if (dither.toLowerCase() === '2x2 bayer') {
+            const bayerMatrix = getBayerMatrix('2x2');
+            pixelatedData = orderedDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, bayerMatrix);
+        } else {
+            throw new Error(`Unknown dithering method: ${dither}`);
+        }
+    } else if (paletteColors) {
+        applyPalette(pixelatedData, paletteColors);
+    }
+
+    // Put processed image data back onto the offscreen canvas
+    offscreenCtx.putImageData(pixelatedData, 0, 0);
+
+    // Create the final canvas for rendering
+    const finalCanvas = document.createElement('canvas');
+    const finalCtx = finalCanvas.getContext('2d');
+
+    // Set final canvas dimensions based on the resolution parameter
+    if (resolution === 'pixel') {
+        finalCanvas.width = pixelsWide;
+        finalCanvas.height = pixelsHigh;
+    } else {
+        finalCanvas.width = originalImageObject.width;
+        finalCanvas.height = originalImageObject.height;
+    }
+
+    // Draw the pixelated image onto the final canvas
+    finalCtx.imageSmoothingEnabled = false;
+    finalCtx.drawImage(offscreenCanvas, 0, 0, finalCanvas.width, finalCanvas.height);
+
+    // Convert the final canvas to a p5.Image or Q5.Image if necessary
+    if (isP5Available) {
+        return canvasToP5Image(finalCanvas);
+    } else if (isQ5Available) {
+        return canvasToQ5Image(finalCanvas);
+    }
+
+    // Return the standard HTMLCanvasElement by default
+    return finalCanvas;
+}
+
+/**
+ * Retrieve the Bayer matrix based on the specified size.
+ * @param {string} type - The Bayer matrix type ('2x2', '4x4', '8x8').
+ * @returns {Array<Array<number>>} - The selected Bayer matrix.
+ */
+function getBayerMatrix(type) {
+    switch (type) {
+        case '2x2':
+            return [
+                [0, 2],
+                [3, 1]
+            ];
+        case '4x4':
+            return [
+                [0, 8, 2, 10],
+                [12, 4, 14, 6],
+                [3, 11, 1, 9],
+                [15, 7, 13, 5]
+            ];
+        case '8x8':
+            return [
                 [0, 48, 12, 60, 3, 51, 15, 63],
                 [32, 16, 44, 28, 35, 19, 47, 31],
                 [8, 56, 4, 52, 11, 59, 7, 55],
@@ -88,63 +154,9 @@ async function pixelate(options) {
                 [10, 58, 6, 54, 9, 57, 5, 53],
                 [42, 26, 38, 22, 41, 25, 37, 21]
             ];
-            pixelatedData = orderedDithering(
-                pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, bayerMatrix
-            );
-        } else if (dither.toLowerCase() === '4x4 bayer') {
-            // Use 4x4 Bayer matrix
-            const bayerMatrix = [
-                [0, 8, 2, 10],
-                [12, 4, 14, 6],
-                [3, 11, 1, 9],
-                [15, 7, 13, 5]
-            ];
-            pixelatedData = orderedDithering(
-                pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, bayerMatrix
-            );
-        } else if (dither.toLowerCase() === '2x2 bayer') {
-            // Use 2x2 Bayer matrix
-            const bayerMatrix = [
-                [0, 2],
-                [3, 1]
-            ];
-            pixelatedData = orderedDithering(
-                pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, bayerMatrix
-            );
-        } else {
-            throw new Error(`Unknown dithering method: ${dither}`);
-        }
-    } else if (paletteColors) {
-        applyPalette(pixelatedData, paletteColors);
+        default:
+            throw new Error(`Invalid Bayer matrix type: ${type}`);
     }
-
-
-    // Put processed data back onto offscreen canvas
-    offscreenCtx.putImageData(pixelatedData, 0, 0);
-
-    // Create final canvas for rendering
-    const finalCanvas = document.createElement('canvas');
-    const finalCtx = finalCanvas.getContext('2d');
-
-    if (resolution === 'pixel') {
-        finalCanvas.width = pixelsWide;
-        finalCanvas.height = pixelsHigh;
-    } else {
-        finalCanvas.width = originalImageObject.width;
-        finalCanvas.height = originalImageObject.height;
-    }
-
-    finalCtx.imageSmoothingEnabled = false;
-    finalCtx.drawImage(offscreenCanvas, 0, 0, finalCanvas.width, finalCanvas.height);
-
-    // Convert the final canvas to a p5.Image or Q5.Image if necessary
-    if (isP5Source) {
-        return canvasToP5Image(finalCanvas);
-    } else if (isQ5Source) {
-        return canvasToQ5Image(finalCanvas);
-    }
-
-    return finalCanvas;
 }
 
 /**
@@ -163,8 +175,6 @@ function canvasToP5Image(canvas) {
 
 /**
  * Convert an HTMLCanvasElement to a Q5.Image if Q5 is available.
- * @param {HTMLCanvasElement} canvas - The canvas to convert.
- * @returns {Q5.Image|HTMLCanvasElement} - The converted Q5.Image or the original canvas.
  */
 function canvasToQ5Image(canvas) {
     if (typeof Q5 !== 'undefined' && typeof Q5.Image !== 'undefined') {
@@ -174,7 +184,23 @@ function canvasToQ5Image(canvas) {
     }
     return canvas;
 }
+/**
+ * Convert a p5.Graphics object to a standard HTMLCanvasElement.
+ * @param {p5.Graphics} p5Graphics - The p5.Graphics object.
+ * @returns {Promise<HTMLCanvasElement>} - A promise that resolves to an HTMLCanvasElement.
+ */
+function convertP5GraphicsToCanvas(p5Graphics) {
+    return new Promise((resolve) => {
+        const canvasElement = document.createElement('canvas');
+        canvasElement.width = p5Graphics.width;
+        canvasElement.height = p5Graphics.height;
 
+        const ctx = canvasElement.getContext('2d');
+        ctx.drawImage(p5Graphics.elt, 0, 0);
+
+        resolve(canvasElement);
+    });
+}
 /**
  * Load the original image from various input types.
  * @param {any} src - The input image source.
@@ -184,53 +210,68 @@ function loadOriginalImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
 
-        // Ensure p5 and Q5 references are checked only if they are available
-        const isP5Available = typeof p5 !== 'undefined';
-        const isQ5Available = typeof Q5 !== 'undefined';
-
         try {
-            // Handle various image sources
-            if (isP5Available && (
-                (typeof p5.Renderer !== 'undefined' && src instanceof p5.Renderer) ||
-                (typeof p5.Image !== 'undefined' && src instanceof p5.Image)
-            )) {
-                const canvasElement = src.elt || src.canvas;
-                img.src = canvasElement.toDataURL();
-            } else if (isQ5Available && typeof Q5.Image !== 'undefined' && src instanceof Q5.Image) {
-                img.src = src.canvas.toDataURL();
-            } else if (src instanceof HTMLCanvasElement) {
+            // Directly resolve if the source is an HTMLImageElement
+            if (src instanceof HTMLImageElement) {
+                resolve(src);
+                return;
+            }
+
+            // Handle HTMLCanvasElement
+            if (src instanceof HTMLCanvasElement) {
                 img.src = src.toDataURL();
-            } else if (src instanceof ImageData) {
+            }
+            // Handle ImageData type by converting it to a canvas
+            else if (src instanceof ImageData) {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = src.width;
                 tempCanvas.height = src.height;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.putImageData(src, 0, 0);
                 img.src = tempCanvas.toDataURL();
-            } else if (typeof src === 'string') {
+            }
+            // Handle URL strings
+            else if (typeof src === 'string') {
                 img.crossOrigin = 'Anonymous';
                 img.src = src;
-            } else if (src instanceof HTMLImageElement) {
-                resolve(src);
-                return;
-            } else {
+            }
+            // Handle p5.Graphics, p5.Renderer, and Q5.Image by checking for `elt` or `canvas` properties
+            else if (src.elt && src.elt instanceof HTMLCanvasElement) {
+                // p5.Graphics or p5.Renderer object
+                img.src = src.elt.toDataURL();
+            } else if (src.canvas && src.canvas instanceof HTMLCanvasElement) {
+                // Q5.Image or Q5.Graphics object
+                img.src = src.canvas.toDataURL();
+            }
+            // Handle OffscreenCanvas
+            else if (src.canvas instanceof OffscreenCanvas) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = src.canvas.width;
+                tempCanvas.height = src.canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(src.canvas, 0, 0);
+                img.src = tempCanvas.toDataURL();
+            }
+            // Handle unexpected types
+            else {
                 console.warn('Unsupported or invalid image source.');
                 reject(new Error('Unsupported or invalid image source.'));
                 return;
             }
 
+            // Set up event listeners for image loading
             img.onload = () => resolve(img);
             img.onerror = (err) => {
                 console.warn(`Failed to load image from source. Error: ${err.message}`);
                 reject(new Error(`Failed to load image: ${err.message}`));
             };
         } catch (error) {
-            console.warn(`Unexpected error when loading image: ${error.message}`);
+            console.warn(`Error when loading image: ${error.message}`);
             reject(error);
         }
-
     });
 }
+
 
 let cachedPalette = { name: null, colors: null };
 function fetchPalette(paletteName) {
