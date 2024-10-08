@@ -7,6 +7,8 @@ Available as both an interactive **application** and a **JavaScript API**.
 
 👴 Looking for the old editor? You can find it [here](https://aijs-code-editor-user-content.web.app/xCzvqwLDxaXjkLrxAeFpzGGnpTA2/Projects/Image-to-Pixel-Classic/index.html).
 
+💫 This project was built entirely in [aijs browser based code editor](https://aijs.io/home). 🙌
+
 ![cover image](images/ui.PNG)
 
 ---
