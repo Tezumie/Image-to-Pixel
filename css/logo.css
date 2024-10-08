@@ -1,0 +1,35 @@
+    #logo-container {
+        width: 285px;
+        height: 24px;
+        display: grid;
+        grid-template-columns: repeat(57, 4px);
+        grid-template-rows: repeat(5, 4px);
+        gap: 1px;
+        background: transparent;
+        overflow: hidden;
+        z-index: 1000;
+        scale: 0.75;
+        margin-left: -45px;
+    }
+
+    .pixel {
+        width: 4px;
+        height: 4px;
+        background: var(--color-text-logo);
+        opacity: 1;
+        transition: all 0.3s;
+    }
+
+    .text-pixel {
+        background: var(--color-text-logo);
+        opacity: 1;
+    }
+
+    .text-transition {
+        background: var(--color-accent);
+    }
+
+    .pixel.off {
+        opacity: 0;
+        transform: scale(0);
+    }
