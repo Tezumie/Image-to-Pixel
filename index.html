@@ -1,219 +1,587 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Tezumie-Image-To-Pixel</title>
-    <style>
-      body {
-        background-color: rgb(19, 21, 22, 1);
-        margin: 0;
-      }
-      #headerContainer {
-        position: fixed;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        font-weight: bold;
-        letter-spacing: 0.5px;
-        padding: 20px;
-        color: rgb(78, 174, 233, 1);
-        background-color: rgb(19, 21, 22, 0.75);
-        height: 40px;
-        min-height: 40px;
-        overflow-x: auto;
-        margin-top: 0px;
-        margin-bottom: 5px;
-        z-index: 1;
-        white-space: nowrap;
-        scrollbar-width: thin;
-        scrollbar-color: rgb(78, 174, 233, 1) rgb(10, 20, 20, 1);
-      }
-      #headerContainer>* {
-        margin-right: 5px;
-        margin-left: 5px;
-        margin-top: 5px;
-      }
-      #headerContainer button {
-        padding: 5px 6px;
-        border: 1px solid #ccc;
-        background-color: rgb(19, 21, 22, 1);
-        color: rgb(78, 174, 233, 1);
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 12px;
-        font-family: Arial, sans-serif;
-      }
-      #fileInput {
-        display: none;
-      }
-      #headerContainer {
-        border: 1px solid #ccc;
-        font-weight: default;
-        padding: 6px 5px;
-        cursor: pointer;
-        background-color: rgb(19, 21, 22, 1);
-        color: rgb(78, 174, 233, 1);
-        border-radius: 5px;
-        cursor: default;
+<html lang="en">
 
-      }
-      .custom-file-upload input[type="file"] {
-        position: absolute;
-        left: 0;
-        top: 0;
-        opacity: 0;
-        cursor: pointer;
-      }
-      #colorPickers {
-        margin-top: 60px;
-        overflow-x: auto;
-        white-space: nowrap;
-        background-color: rgb(19, 21, 22, 1);
-        scrollbar-width: thin;
-        scrollbar-color: rgb(78, 174, 233, 1) rgb(10, 20, 20, 1);
-        cursor: pointer;
-      }
-      #headerContainer .custom-file-upload {
-        border: 1px solid #ccc;
-        font-weight: default;
-        padding: 5px 6px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: rgb(19, 21, 22, 1);
-        color: rgb(78, 174, 233, 1);
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-      }
-      #headerContainer .custom-file-upload:hover,
-      #headerContainer :hover {
-        background-color: rgb(78, 174, 233, 1);
-        color: rgb(19, 21, 22, 1);
-      }
-      #colorPickers :hover {
-        background-color: rgb(78, 174, 233, 1);
-        color: rgb(19, 21, 22, 1);
-        cursor: pointer;
-      }
-      #arrowBox {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 0;
-        width: 100px;
-        height: 100px;
-        background-color: rgb(10, 15, 15, 1);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #arrowUp {
-        width: 0;
-        height: 0;
-        border-left: 50px solid transparent;
-        border-right: 50px solid transparent;
-        border-bottom: 50px solid rgb(78, 174, 233, 1);
-        ;
-      }
-      #label {
-        margin-top: 150px;
-        color: white;
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        font-weight: bold;
+<head>
+  <meta charset="UTF-8">
+  <title>🎨 Image-to-Pixel</title>
+  <!-- Include Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Google Fonts for Modern Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="css/logo.css">
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
+  <link rel="stylesheet" type="text/css" href="css/picker.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-hover) var(--color-primary)
+    }
 
-      }
-      #labelContainer {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 0;
-        text-align: center;
-      }
-      #colorPickers :focus {
-        background-color: rgb(78, 174, 233, 1);
-        color: rgb(19, 21, 22, 1);
-        cursor: pointer;
-      }
-      input[type="color"] {
-        -webkit-appearance: none;
-        border: none;
-        width: 32px;
-        height: 32px;
-        background-color: rgb(10, 15, 15, 1);
-      }
-      input[type="color"]::-webkit-color-swatch-wrapper {
-        padding: 0;
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px
+    }
 
-      }
-      input[type="color"]::-webkit-color-swatch {
-        border: none;
+    ::-webkit-scrollbar-track {
+      background: var(--color-primary)
+    }
 
-      }
-      #ditherStyleInput {
-         width: 85px;
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--color-hover);
+      border-radius: 4px;
+      border: 2px solid var(--color-primary)
+    }
 
-      }
-      #posterizeAmntInput,
-      #gridSizeInput,
-      #ditherInput {
-        width: 45px;
-      }
-      #ditherStyleInput option,
-      #paletteSelector,
-      #paletteSelector option {
-        width: 150px;
-        cursor: pointer;
-        background-color: white;
-        color: black;
-        cursor: pointer;
-      }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-  </head>
-  <body>
-    <div id="headerContainer">
-      <button onclick="uploadImageFile()">Upload Image</button>
-      <button id="downloadImage-button">Download Image</button>
-      <label for="fileInput" class="custom-file-upload"> Upload Palette </label>
-      <input type="file" id="fileInput" title="&nbsp;" />
-      <button id="downloadPalette">Download Palette</button>
-      <select id="paletteSelector"></select>
-      <button id="addColorPicker">+</button>
-      <button id="removeColorPicker">🗑️</button>
-      <label for="gridSizeInput">Size:</label>
-      <input type="number" id="gridSizeInput" value="224" min="1" max="4000" />
-      <label for="ditherInput">Dither Amount:</label>
-      <input type="number" id="ditherInput" value="12" min="1" max="255" />
-      <label for="ditherStyleInput">Dither Style:</label>
-      <select id="ditherStyleInput"></select>
-      <label for="posterizeAmntInput">posterize:</label>
-      <input
-        type="number"
-        id="posterizeAmntInput"
-        value="0"
-        min="0"
-        max="20"
-        oninput="checkInputValue(this)"
-      />
+    /* Ensure .setting-group is positioned relatively */
+    .setting-group {
+      position: relative;
+    }
+
+    /* Style the toggle button */
+    .toggle-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 30px !important;
+      height: 17px !important;
+      background-color: var(--color-background) !important;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      padding: 9px 16px !important;
+    }
+
+    /* Style for the active state */
+    .toggle-btn.active {
+      background-color: var(--color-accent) !important;
+    }
+
+    /* Style the toggle thumb */
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      background-color: var(--color-text);
+      border-radius: 50%;
+      transition: 0.3s;
+      pointer-events: none;
+    }
+
+    /* Move the thumb when active */
+    .toggle-btn.active .toggle-thumb {
+      left: 16px;
+      background-color: white;
+    }
+
+    #paletteSelector {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div id="logo-container" aria-label="Image-to-Pixel Logo">
+      <!-- Pixels will be generated by JavaScript -->
     </div>
-    <div id="colorPickers">
-      <div id="colorPickerBoxid" class="colorPickerBox"></div>
+    <div class="download-buttons">
+      <button id="downloadFull" title="Download Full Resolution">
+                <i class="fas fa-download"></i>
+            </button>
+      <button id="downloadPixel" title="Download Pixelated Image">
+                <i class="fas fa-file-image"></i>
+            </button>
     </div>
-    <div id="labelContainer">
-      <div id="arrowBox">
-        <div id="arrowUp"></div>
+  </header>
+
+  <div class="container">
+    <div class="tool-panel">
+      <button id="pixelateButton">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Pixelate
+            </button>
+      <button title="auto refresh" id="autoPixelateToggle" class="toggle-btn" aria-pressed="false">
+                <span class="toggle-thumb"></span>
+            </button>
+      <div class="settings">
+        <div class="setting-group">
+          <label for="pixel-data">
+                        <i class="fa-solid fa-chevron-down"></i>
+                        Pixel Width</label>
+          <div id="pixel-data" class="input-group">
+
+            <select id="pixelWidthSelector">
+                            <option value="16">16</option>
+                            <option value="32">32</option>
+                            <option value="64">64</option>
+                            <option value="128" selected>128</option>
+                            <option value="256">256</option>
+                        </select>
+            <div class="span-group">
+              <span>Custom:</span>
+              <input type="text" id="pixelWidthInput" value="128">
+              <button id="autoDetectButton" title="Auto Detect Image Width">Auto Detect</button>
+            </div>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label for="dither-data">
+                        <i class="fa-solid fa-chevron-down"></i>
+                        Dither Type</label>
+          <div id="dither-data" class="input-group">
+
+            <select id="dithering">
+                            <option value="none">None</option>
+                            <option value="Floyd-Steinberg">Floyd-Steinberg</option>
+                            <option value="2x2 Bayer">2x2 Bayer</option>
+                            <option value="4x4 Bayer" selected>4x4 Bayer</option>
+                            <option value="ordered">Ordered Dithering</option>
+                        </select>
+            <div class="slider-container">
+              <span>Strength</span>
+              <input type="range" id="ditheringStrength" min="0" max="100" value="10">
+            </div>
+
+          </div>
+
+        </div>
+        <div class="setting-group">
+          <label for="main-container">
+                        <i class="fa-solid fa-chevron-down"></i>
+                        Palette</label>
+          <button id="palette-toggle" class="toggle-btn active" aria-pressed="true">
+                        <span class="toggle-thumb"></span>
+                    </button>
+
+          <div id="main-container" class="main-container">
+            <div class="palette-switcher">
+              <div class="palette-list-wrapper">
+                <h4>Default</h4>
+                <select id="default-palette-selector"></select>
+              </div>
+              <div class="palette-list-wrapper">
+                <h4>Custom</h4>
+                <select id="custom-palette-selector">
+                                    <option value="none">None</option>
+                                </select>
+              </div>
+            </div>
+
+            <input type="text" id="palette-name-input" placeholder="Enter palette name" />
+
+            <div class="color-list">
+              <div id="selected-colors"></div>
+            </div>
+            <div class="controls">
+              <button id="add-color-button">Add Color</button>
+              <button id="save-palette-button" class="save-button">Save</button>
+              <button id="delete-palette-button" class="delete-button">Delete</button>
+            </div>
+            <!-- HTML for the new buttons -->
+            <button id="upload-palette-button">Upload Palette</button>
+            <button id="download-palette-button">Download Palette</button>
+            <input type="file" id="palette-file-input" style="display:none" accept=".json">
+
+            <!-- Hidden container for Pickr -->
+            <div id="hidden-picker"></div>
+          </div>
+
+        </div>
+        <div title="the slug is the last part of the lospec URL-EX: https://lospec.com/palette-list/rgbg-36"
+          class="setting-group">
+          <button id="lospec-toggle" class="toggle-btn" aria-pressed="false">
+                        <span class="toggle-thumb"></span>
+                    </button>
+          </button>
+          <label for="palette-input">
+                        <i class="fa-solid fa-chevron-down"></i>
+                        Lospec Palette</label>
+          <div id="palette-input" class="input-group">
+
+            <select id="paletteSelector">
+                            <option value="rgbg-36" selected>rgbg-36</option>
+                            <!-- <option value="sephia-64">Sephia-64</option>
+              <option value="solarized-32">Solarized-32</option>
+              <option value="monochrome-16">Monochrome-16</option>
+              <option value="vibrant-48">Vibrant-48</option>
+              <option value="pastel-64">Pastel-64</option> -->
+                        </select>
+            <div class="span-group">
+              <span>Slug:</span>
+              <input type="text" id="paletteInput" value="rgbg-36">
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="label">Drag and Drop Image to Pixelate</div>
     </div>
-    <script src="sketch.js"></script>
-    <script src="palette.js"></script>
-  </body>
+    <div class="main-content">
+      <div id="dropzone">
+        <p>Drop an image or click to upload</p>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+      </div>
+      <input type="file" id="fileInput" style="display:none" accept="image/*">
+    </div>
+  </div>
+
+
+  <script src="src/logo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+
+  <script src="src/picker.js"></script>
+  <!-- Include the new pixeldither.js API -->
+  <script src="image-to-pixel.js"></script>
+
+  <!-- JavaScript for Image Handling and Pixelation -->
+  <script>
+    document.querySelectorAll('label[for]').forEach(label => {
+            label.onclick = () => {
+                const targetId = label.getAttribute('for');
+                const targetElement = document.getElementById(targetId);
+                const chevron = label.querySelector('.fa-chevron-down, .fa-chevron-right');
+
+                if (targetElement) {
+                    // Initialize maxHeight if not already set
+                    if (!targetElement.style.maxHeight) {
+                        targetElement.style.maxHeight = targetElement.scrollHeight + 'px';
+                    }
+
+                    const isHidden = targetElement.style.maxHeight === '0px';
+                    targetElement.style.maxHeight = isHidden ? targetElement.scrollHeight + 'px' : '0px';
+                    targetElement.style.overflow = 'hidden';  // Ensure content doesn't overflow
+
+                    // Toggle chevron direction
+                    if (chevron) {
+                        chevron.classList.toggle('fa-chevron-right', !isHidden);
+                        chevron.classList.toggle('fa-chevron-down', isHidden);
+                    }
+                }
+            };
+        });
+
+        const autoDetectButton = document.getElementById('autoDetectButton');
+        autoDetectButton.addEventListener('click', () => {
+            if (originalImageObject) {
+                const imageWidth = originalImageObject.width;
+                pixelWidthInput.value = imageWidth;
+                pixelWidthSelector.value = imageWidth;
+                console.log(`Detected image width: ${imageWidth}px`);
+
+                if (autoPixelateEnabled) applyPixelation();
+            } else {
+                console.warn("No image detected. Please upload an image first.");
+            }
+        });
+
+
+
+        let activeToggle = document.getElementById('palette-toggle');
+        const autoPixelateToggle = document.getElementById('autoPixelateToggle');
+        // Initial state of autoPixelate
+
+        const toggles = document.querySelectorAll('.toggle-btn');
+
+        // Set up initial visual state for auto-pixelate toggle
+        autoPixelateToggle.classList.toggle('active', autoPixelateEnabled);
+        autoPixelateToggle.setAttribute('aria-pressed', autoPixelateEnabled.toString());
+
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', function () {
+                // Skip the autoPixelateToggle from being treated as an exclusive toggle
+                if (this.id === 'autoPixelateToggle') {
+                    // Toggle autoPixelate state and update visuals
+                    autoPixelateEnabled = !autoPixelateEnabled;
+                    this.classList.toggle('active', autoPixelateEnabled);
+                    this.setAttribute('aria-pressed', autoPixelateEnabled.toString());
+                    return;
+                }
+
+                // If this toggle is not already active
+                if (activeToggle !== this) {
+                    // Deactivate other toggles except the auto-pixelate toggle
+                    toggles.forEach(btn => {
+                        if (btn.id !== 'autoPixelateToggle') {
+                            btn.classList.remove('active');
+                            btn.setAttribute('aria-pressed', 'false');
+                        }
+                    });
+
+                    // Activate this toggle
+                    this.classList.add('active');
+                    this.setAttribute('aria-pressed', 'true');
+                    activeToggle = this;
+                } else {
+                    // If clicked on the active toggle, deactivate it
+                    this.classList.remove('active');
+                    this.setAttribute('aria-pressed', 'false');
+                    activeToggle = null;
+                }
+            });
+        });
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const pixelateButton = document.getElementById('pixelateButton');
+        const downloadFullButton = document.getElementById('downloadFull');
+        const downloadPixelButton = document.getElementById('downloadPixel');
+        const pixelWidthInput = document.getElementById('pixelWidthInput');
+        const paletteNameInput = document.getElementById('paletteInput');
+        const ditheringSelect = document.getElementById('dithering');
+        const ditheringStrengthInput = document.getElementById('ditheringStrength');
+
+        // Synchronize Pixel Width Selector and Input
+        pixelWidthSelector.addEventListener('change', () => {
+            pixelWidthInput.value = pixelWidthSelector.value;
+        });
+        pixelWidthInput.addEventListener('input', () => {
+            pixelWidthSelector.value = pixelWidthInput.value;
+        });
+
+        // Synchronize Palette Selector and Input
+        const paletteSelector = document.getElementById('paletteSelector');
+        paletteSelector.addEventListener('change', () => {
+            paletteNameInput.value = paletteSelector.value;
+        });
+        paletteNameInput.addEventListener('input', () => {
+            paletteSelector.value = paletteNameInput.value;
+        });
+
+        let originalImageObject = null;
+        let pixelatedCanvas = null; // Store the pixelated canvas
+
+        // Open file dialog when clicking on the dropzone
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        // Handle file input change
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) displayImage(file);
+        });
+
+        // Drag-and-drop events
+        dropzone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropzone.style.borderColor = '#0084ff';
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = '#cccccc';
+        });
+        dropzone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropzone.style.borderColor = '#cccccc';
+            const files = event.dataTransfer.files;
+            if (files.length) displayImage(files[0]);
+        });
+
+        function displayImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const image = new Image();
+                image.onload = function () {
+                    originalImageObject = image;
+
+                    // Calculate canvas dimensions based on container size and image aspect ratio
+                    const container = document.querySelector('.canvas-wrapper');
+                    const containerWidth = container.clientWidth;
+                    const containerHeight = container.clientHeight;
+                    const imageAspectRatio = image.width / image.height;
+
+                    let canvasWidth, canvasHeight;
+
+                    if (containerWidth / containerHeight > imageAspectRatio) {
+                        // Container is wider than image
+                        canvasHeight = containerHeight;
+                        canvasWidth = canvasHeight * imageAspectRatio;
+                    } else {
+                        // Container is taller than image
+                        canvasWidth = containerWidth;
+                        canvasHeight = canvasWidth / imageAspectRatio;
+                    }
+
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+                    // When rendering the pixelated image
+                    ctx.imageSmoothingEnabled = false; // Ensure no smoothing on pixelated images
+
+                    // Ensure the canvas scales correctly
+                    canvas.style.imageRendering = 'pixelated'; // Set canvas rendering to pixelated for crisp pixels
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.imageSmoothingEnabled = true; // Enable image smoothing for original image
+                    ctx.drawImage(
+                        image,
+                        0, 0, image.width, image.height,
+                        0, 0, canvas.width, canvas.height
+                    );
+
+                    // Set image rendering to 'auto' for original image
+                    canvas.style.imageRendering = 'auto';
+
+                    canvas.style.display = 'block';
+                    dropzone.classList.add('active');
+                };
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Common function to handle pixelation
+        async function applyPixelation() {
+            if (!originalImageObject) return;
+
+            const pixelsWide = parseInt(pixelWidthInput.value) || 10;
+            const paletteName = paletteNameInput.value.trim();
+            const ditheringMethod = ditheringSelect.value;
+            const ditheringStrength = parseInt(ditheringStrengthInput.value); // Strength is 0-100
+
+            let palette = null;
+            if (paletteName) {
+                palette = paletteName;
+            }
+
+            let paletteToUse = activePalette;
+
+            if (activeToggle.id === 'lospec-toggle') {
+                paletteToUse = palette;
+            } else {
+                paletteToUse = activePalette;
+            }
+
+            const options = {
+                image: originalImageObject,
+                width: pixelsWide,
+                dither: ditheringMethod,
+                strength: ditheringStrength,
+                palette: paletteToUse,
+                resolution: 'pixel', // 'pixel' for pixelated size, 'original' for original size
+            };
+
+            try {
+                const resultCanvas = await pixelate(options);
+
+                // Store the pixelated canvas for downloading
+                pixelatedCanvas = resultCanvas;
+
+                // Update canvas display
+                const container = document.querySelector('.canvas-wrapper');
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                const imageAspectRatio = resultCanvas.width / resultCanvas.height;
+
+                let canvasWidth, canvasHeight;
+
+                if (containerWidth / containerHeight > imageAspectRatio) {
+                    canvasHeight = containerHeight;
+                    canvasWidth = canvasHeight * imageAspectRatio;
+                } else {
+                    canvasWidth = containerWidth;
+                    canvasHeight = canvasWidth / imageAspectRatio;
+                }
+
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.imageSmoothingEnabled = false; // Disable smoothing for pixelated image
+                ctx.drawImage(resultCanvas, 0, 0, canvas.width, canvas.height);
+                resultCanvas.style.imageRendering = 'pixelated'; // Crisp pixel rendering
+                canvas.style.display = 'block';
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Apply pixelation when the Pixelate button is clicked
+        pixelateButton.addEventListener('click', applyPixelation);
+
+        // Re-run pixelation automatically when settings change, if auto-pixelate is enabled
+        pixelWidthInput.addEventListener('input', () => {
+            if (autoPixelateEnabled) applyPixelation();
+        });
+        ditheringSelect.addEventListener('change', () => {
+            if (autoPixelateEnabled) applyPixelation();
+        });
+        ditheringStrengthInput.addEventListener('input', () => {
+            if (autoPixelateEnabled) applyPixelation();
+        });
+        paletteNameInput.addEventListener('input', () => {
+            if (autoPixelateEnabled) applyPixelation();
+        });
+        paletteSelector.addEventListener('change', () => {
+            if (autoPixelateEnabled) applyPixelation();
+        });
+
+        pixelWidthSelector.addEventListener('change', () => {
+            if (autoPixelateEnabled) applyPixelation();
+        });
+        // Update the downloadPixelButton event handler
+        downloadPixelButton.addEventListener('click', () => {
+            if (!pixelatedCanvas) return;
+
+            // Create a download link
+            const link = document.createElement('a');
+            link.href = pixelatedCanvas.toDataURL('image/png');
+            link.download = 'pixelated-image.png';
+            link.click();
+        });
+
+        // Update the downloadFullButton event handler
+        downloadFullButton.addEventListener('click', async () => {
+            if (!originalImageObject) return;
+
+            const pixelsWide = parseInt(pixelWidthInput.value) || 10;
+            const paletteName = paletteNameInput.value.trim();
+            const ditheringMethod = ditheringSelect.value;
+            const ditheringStrength = parseInt(ditheringStrengthInput.value); // Strength is 0-100
+
+            let palette = null;
+            if (paletteName) {
+                palette = paletteName;
+            }
+
+            let paletteToUse = activePalette;
+
+            if (activeToggle.id === 'lospec-toggle') {
+                paletteToUse = palette;
+            } else {
+                paletteToUse = activePalette;
+            }
+            const options = {
+                image: originalImageObject,
+                width: pixelsWide,
+                dither: ditheringMethod,
+                strength: ditheringStrength,
+
+                palette: paletteToUse,
+                resolution: 'original', // 'pixel' for pixelated size, 'original' for original size
+            };
+
+            try {
+                const fullCanvas = await pixelate(options);
+
+                // Create a download link
+                const link = document.createElement('a');
+                link.href = fullCanvas.toDataURL('image/png');
+                link.download = 'full-resolution-pixelated.png';
+                link.click();
+            } catch (error) {
+                console.error(error);
+                alert('An error occurred during downloading the full-resolution image.');
+            }
+        });
+  </script>
+</body>
+
 </html>
