@@ -1,0 +1,168 @@
+:root {
+    --color-primary: #0c0e12;
+    --color-accent: #588dff;
+    --color-accent2: #3369ff;
+    --color-secondary: #1a1e23;
+    --color-third: #272a31;
+    --color-hover: #333b43;
+    --color-background: #0c0e12;
+    --color-header: #0c0e12;
+    --color-text: #b0b0b4;
+    --color-text-secondary: #666a72;
+    --color-text-logo: #313131;
+    --color-border: #2d313a;
+    --font-family: 'Inter', sans-serif;
+    --transition-speed: 0.3s;
+    --header-height: 50px;
+    --tool-panel-width: 300px;
+}
+
+.main-container button {
+    padding: 3px 7px;
+    margin-bottom: 5px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    border-radius: 30px;
+    margin-top: 10px;
+}
+
+.main-container button:hover {
+    border-color: transparent;
+}
+
+.main-container button:last-child:hover {
+    background-color: #f44336;
+    border-color: transparent;
+}
+
+.palette-switcher {
+    margin-bottom: 5px;
+}
+
+#palette-name-input {
+    margin-top: -10px !important;
+}
+
+.controls {
+    gap: 5px;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: -5px;
+}
+
+.controls button {
+    background-color: var(--color-secondary);
+    border-radius: 5px;
+    border: thin solid var(--color-border);
+}
+
+.palette-switcher {
+    display: flex;
+    gap: 5px;
+}
+
+.palette-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.palette-list-wrapper h4 {
+    margin: 4px 0px;
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.color-list {
+    border: thin solid var(--color-border);
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 11px;
+    padding: 5px;
+    min-height: 30px;
+}
+
+#selected-colors {
+    max-height: 200px;
+    border-radius: 11px;
+    /* Use CSS Grid to create a 2-column layout */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Two equal-width columns */
+    /* Spacing between grid items */
+}
+
+.color-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px;
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    border-radius: 5px;
+    background-color: var(--color-secondary);
+}
+
+.color-code {
+    font-size: 0.8rem;
+}
+
+.color-item:hover {
+    background-color: var(--color-third);
+    color: var(--color-text);
+
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.delete-button,
+.save-button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+}
+
+.remove-color {
+    cursor: pointer;
+    margin-left: 5px;
+    padding-right: 5px;
+    color: #f443367a;
+    font-weight: bold;
+}
+
+.remove-color:hover {
+    color: #f44336;
+}
+
+.main-container input,
+.main-container select,
+button {
+    width: 100%;
+    margin: 5px 0;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+#hidden-picker {
+    position: absolute;
+    visibility: hidden;
+    z-index: -1;
+}
+
+.pickr .pcr-button {
+    position: absolute;
+    visibility: hidden;
+    z-index: -1;
+}
