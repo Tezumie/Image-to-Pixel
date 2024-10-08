@@ -87,18 +87,15 @@
 #selected-colors {
     max-height: 200px;
     border-radius: 11px;
-    /* Use CSS Grid to create a 2-column layout */
     display: grid;
     grid-template-columns: 1fr 1fr;
-    /* Two equal-width columns */
-    /* Spacing between grid items */
 }
 
 .color-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 3px;
+    padding: 0px 3px;
     font-size: 0.7rem;
     color: var(--color-text-secondary);
     border-radius: 5px;
@@ -106,13 +103,17 @@
 }
 
 .color-code {
+    margin-top: 5px;
     font-size: 0.8rem;
 }
 
 .color-item:hover {
     background-color: var(--color-third);
-    color: var(--color-text);
+    color: var(--color-text) !important;
+}
 
+.color-item:hover .color-code {
+    color: var(--color-text) !important;
 }
 
 .color-swatch {
@@ -137,6 +138,7 @@
 .remove-color {
     cursor: pointer;
     margin-left: 5px;
+    margin-top: 5px;
     padding-right: 5px;
     color: #f443367a;
     font-weight: bold;
