@@ -37,7 +37,7 @@ Add the library to your project:
 
 Use via CDN;
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Tezumie/Image-to-Pixel/dist/image-to-pixel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Tezumie/Image-to-Pixel@main/image-to-pixel.js"></script>
 ```
 
 Or use locally (Recommended);
