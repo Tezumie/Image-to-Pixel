@@ -83,7 +83,7 @@ Happy pixelating! ✨
 ## 📄 License
 
 ### 💽 image-to-pixel labrary
-The image-to-pixel library (image-to-pixel.js) used in this project is licensed under the [MIT License](https://opensource.org/licenses/MIT). You can find the full license text in the [`LICENSE-data`](LICENSE-data) file.
+The image-to-pixel library (image-to-pixel.js) used in this project is licensed under the [MIT License](https://opensource.org/licenses/MIT). You can find the full license text in the [`LICENSE-library`](LICENSE-library) file.
 
 ### 🖥️ Application
 The image-to-pixel application itself is licensed under the [Apache License 2.0](https://opensource.org/licenses/Apache-2.0). Please refer to the [`LICENSE-app`](LICENSE-app) file for more details.
