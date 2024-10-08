@@ -25,14 +25,13 @@
     function animatePixelsRandomly() {
       const pixels = document.querySelectorAll('.pixel');
       pixels.forEach((pixel) => {
-        const delay = Math.random() * 2000; // 0 to 2 seconds
+        const delay = Math.random() * 2000; 
 
         if (!pixel.classList.contains('text-pixel')) {
           setTimeout(() => {
             pixel.classList.add('off');
           }, delay);
         } else {
-          // For text pixels, transition to the new color
           setTimeout(() => {
             pixel.classList.add('text-transition');
           }, delay);
@@ -40,10 +39,8 @@
       });
     }
 
-    // Initialize the logo
     window.onload = () => {
       createPixels();
-      // Start animation after a short delay
       setTimeout(() => {
         animatePixelsRandomly();
       }, 10);
