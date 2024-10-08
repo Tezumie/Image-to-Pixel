@@ -38,12 +38,9 @@ function sortPalettesByName(palettes) {
 const PALETTE_STORAGE_KEY = 'color-palettes';
 let customPalettes = loadPalettes();
 let activePalette = DEFAULT_PALETTES[0].colors.map(color => {
-    // Add '#' if it's not already present
     return color.startsWith('#') ? color : `#${color}`;
 });
 
-
-// Initialize Pickr
 const pickr = Pickr.create({
     el: '#hidden-picker',
     theme: 'nano',
@@ -103,21 +100,17 @@ function updateColorList() {
         colorList.appendChild(colorItem);
     });
 
-    // Attach event handlers
     document.querySelectorAll('.color-swatch').forEach(swatch => {
         swatch.addEventListener('click', function (e) {
             const index = e.target.dataset.index;
-            // Store the current index and swatch element
             pickr.currentIndex = index;
             pickr.currentSwatchElement = e.target;
 
-            // Set the color silently to prevent triggering 'change' event
             pickr.setColor(activePalette[index], true);
             pickr.show();
         });
     });
 
-    // Remove color handlers
     document.querySelectorAll('.remove-color').forEach(button => {
         button.addEventListener('click', (e) => {
             const index = e.target.dataset.index;
@@ -128,7 +121,6 @@ function updateColorList() {
     if (autoPixelateEnabled) applyPixelation();
 }
 
-// Attach a single 'change' event listener to the pickr instance
 pickr.on('change', (color) => {
     if (color && pickr.currentIndex !== undefined) {
         const newColor = color.toHEXA().toString();
@@ -136,25 +128,20 @@ pickr.on('change', (color) => {
         const swatchElement = pickr.currentSwatchElement;
 
         activePalette[index] = newColor;
-
-        // Update only the current swatch
         swatchElement.style.backgroundColor = newColor;
         swatchElement.parentElement.querySelector('.color-code').textContent = newColor;
     }
     if (autoPixelateEnabled) applyPixelation();
 });
 
-// Update event listener for the default palette selector
 document.getElementById('default-palette-selector').addEventListener('change', (e) => {
     const selectedIndex = e.target.value;
 
-    // If "None" is selected, initialize with a single white color
     if (selectedIndex === 'none') {
         activePalette = ['#ffffff'];
         document.getElementById('palette-name-input').value = '';
         document.getElementById('custom-palette-selector').value = 'none';
     } else {
-        // Otherwise, load the selected default palette
         activePalette = DEFAULT_PALETTES[selectedIndex].colors.map(color => {
             return color.startsWith('#') ? color : `#${color}`;
         });
@@ -164,17 +151,14 @@ document.getElementById('default-palette-selector').addEventListener('change', (
     updateColorList();
 });
 
-// Update event listener for the custom palette selector
 document.getElementById('custom-palette-selector').addEventListener('change', (e) => {
     const selectedIndex = e.target.value;
 
-    // If "None" is selected, initialize with a single white color
     if (selectedIndex === 'none') {
         activePalette = ['#ffffff'];
         document.getElementById('palette-name-input').value = '';
         document.getElementById('default-palette-selector').value = 'none';
     } else {
-        // Otherwise, load the selected custom palette
         activePalette = [...customPalettes[selectedIndex].colors];
         document.getElementById('palette-name-input').value = customPalettes[selectedIndex].name;
         document.getElementById('default-palette-selector').value = 'none';
@@ -182,14 +166,11 @@ document.getElementById('custom-palette-selector').addEventListener('change', (e
     updateColorList();
 });
 
-
-// Add color button
 document.getElementById('add-color-button').addEventListener('click', () => {
     activePalette.push('#ffffff');
     updateColorList();
 });
 
-// Save palette button
 document.getElementById('save-palette-button').addEventListener('click', () => {
     const paletteName = document.getElementById('palette-name-input').value.trim();
     if (paletteName === '') {
@@ -205,13 +186,11 @@ document.getElementById('save-palette-button').addEventListener('click', () => {
     savePalettes();
     updateSelectors();
 
-    // Automatically switch the custom palette selector to the saved palette
     const newIndex = customPalettes.findIndex(palette => palette.name === paletteName);
     document.getElementById('custom-palette-selector').value = newIndex;
     document.getElementById('default-palette-selector').value = 'none';
 });
 
-// Delete palette button
 document.getElementById('delete-palette-button').addEventListener('click', () => {
     const selector = document.getElementById('custom-palette-selector');
     const index = selector.value;
@@ -224,11 +203,9 @@ document.getElementById('delete-palette-button').addEventListener('click', () =>
     }
 });
 
-// Upload Palette Functionality
 const uploadPaletteButton = document.getElementById('upload-palette-button');
 const paletteFileInput = document.getElementById('palette-file-input');
 
-// Open file dialog when clicking the upload button
 uploadPaletteButton.addEventListener('click', () => paletteFileInput.click());
 
 paletteFileInput.addEventListener('change', (event) => {
@@ -239,7 +216,6 @@ paletteFileInput.addEventListener('change', (event) => {
             try {
                 const uploadedPalette = JSON.parse(e.target.result);
 
-                // Ensure colors have the # prefix
                 uploadedPalette.colors = uploadedPalette.colors.map(color =>
                     color.startsWith('#') ? color : `#${color}`
                 );
@@ -248,7 +224,6 @@ paletteFileInput.addEventListener('change', (event) => {
 
                 updateSelectors();
 
-                // Automatically select the uploaded palette
                 document.getElementById('custom-palette-selector').value = addedIndex;
                 document.getElementById('default-palette-selector').value = 'none';
                 activePalette = [...customPalettes[addedIndex].colors];
@@ -265,7 +240,6 @@ paletteFileInput.addEventListener('change', (event) => {
     }
 });
 
-// Add the uploaded palette to customPalettes with unique name
 function addUploadedPalette(palette) {
     if (!palette || !palette.name || !Array.isArray(palette.colors)) {
         console.warn("Invalid palette format. Ensure the palette has a name and a list of colors.");
@@ -277,7 +251,6 @@ function addUploadedPalette(palette) {
     let paletteName = baseName;
     let counter = 1;
 
-    // Ensure the name is unique by adding a suffix if necessary
     while (customPalettes.some(p => p.name === paletteName)) {
         paletteName = `${baseName}-${counter}`;
         counter++;
@@ -291,11 +264,9 @@ function addUploadedPalette(palette) {
 
     savePalettes();
 
-    // Return the index of the newly added palette
     return customPalettes.length - 1;
 }
 
-// Download Palette Functionality
 const downloadPaletteButton = document.getElementById('download-palette-button');
 
 downloadPaletteButton.addEventListener('click', () => {
@@ -305,14 +276,12 @@ downloadPaletteButton.addEventListener('click', () => {
         return;
     }
 
-    // Find the selected custom palette
     const selectedPalette = customPalettes.find(palette => palette.name === paletteName);
     if (!selectedPalette) {
         alert('No custom palette found with the specified name, save first.');
         return;
     }
 
-    // Create a JSON file and trigger download
     const paletteJson = JSON.stringify(selectedPalette, null, 2);
     const blob = new Blob([paletteJson], { type: 'application/json' });
     const link = document.createElement('a');
@@ -321,7 +290,6 @@ downloadPaletteButton.addEventListener('click', () => {
     link.click();
 });
 
-// Helper function to update selectors
 function updateSelectors() {
     const defaultSelector = document.getElementById('default-palette-selector');
     const customSelector = document.getElementById('custom-palette-selector');
@@ -343,18 +311,14 @@ function updateSelectors() {
     });
 }
 
-// Helper function to save palettes
 function savePalettes() {
     localStorage.setItem(PALETTE_STORAGE_KEY, JSON.stringify(customPalettes));
 }
 
-// Helper function to load palettes from local storage
 function loadPalettes() {
     return JSON.parse(localStorage.getItem(PALETTE_STORAGE_KEY)) || [];
 }
 
-// Initialize
 updateSelectors();
-
 document.getElementById('default-palette-selector').value = 0;
 updateColorList();
