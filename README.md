@@ -68,6 +68,23 @@ ditheredCanvas = await pixelate({
 Try a Demo Using image-to-pixel API with q5.js [here](https://aijs.io/editor?user=Tezumie&project=image-to-pixel-q5-p5).
 
 ![q5-pixel](images/q5-pixel.png)
+
+**Note**: When using with p5js/q5js, for animations, make all drawing operations to a buffer, than use the buffer as the image you pass to 'pixelate'. This is due to how these libraries handle dynamic image loading, the image will load at the begining of the next draw cycle for animations ('loop()') causing the dithered image to be hidden behind anything drawn to the canvas. If you you are only rendering a single dithered image ('noLoop') this issue will not apply as the the dynamically added image will render at the end of the draw loop.
+
+For Animations use a buffer:
+
+```js
+buffer = createGraphics(width, height);
+...
+...
+
+buffer.rect(0,0,100,100);
+ditheredCanvas = await pixelate({
+  image: buffer,
+...etc
+image(ditheredCanvas,0,0)
+```
+
 ---
 
 ## ❤️ Support
