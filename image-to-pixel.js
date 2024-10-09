@@ -86,7 +86,13 @@ async function pixelate(options) {
         } else if (dither.toLowerCase() === '2x2 bayer') {
             const bayerMatrix = getBayerMatrix('2x2');
             pixelatedData = orderedDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, bayerMatrix);
-        } else {
+        } else if (dither.toLowerCase() === 'clustered 4x4') {
+            const clusteredMatrix = getBayerMatrix('clustered 4x4');
+            pixelatedData = orderedDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, clusteredMatrix);
+        } else if (dither.toLowerCase() === 'atkinson') {
+            pixelatedData = atkinsonDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors);
+        }
+        else {
             throw new Error(`Unknown dithering method: ${dither}`);
         }
     } else if (paletteColors) {
@@ -153,6 +159,13 @@ function getBayerMatrix(type) {
                 [34, 18, 46, 30, 33, 17, 45, 29],
                 [10, 58, 6, 54, 9, 57, 5, 53],
                 [42, 26, 38, 22, 41, 25, 37, 21]
+            ];
+        case 'clustered 4x4':
+            return [
+                [7, 13, 11, 4],
+                [12, 16, 14, 8],
+                [10, 15, 6, 2],
+                [5, 9, 3, 1]
             ];
         default:
             throw new Error(`Invalid Bayer matrix type: ${type}`);
@@ -311,6 +324,47 @@ function applyPalette(imageData, paletteColors) {
         data[i + 1] = g;
         data[i + 2] = b;
     }
+}
+function atkinsonDithering(imageData, width, height, strength, paletteColors) {
+    const data = imageData.data;
+    const errorBuffer = new Float32Array(data.length);
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+
+            // Get original color and add accumulated error
+            let r = data[idx] + errorBuffer[idx];
+            let g = data[idx + 1] + errorBuffer[idx + 1];
+            let b = data[idx + 2] + errorBuffer[idx + 2];
+
+            const oldColor = [r, g, b];
+
+            // Quantize the pixel to the nearest palette color
+            const newColor = findClosestPaletteColor(oldColor, paletteColors);
+
+            // Update the image data with the new color
+            data[idx] = newColor[0];
+            data[idx + 1] = newColor[1];
+            data[idx + 2] = newColor[2];
+
+            // Calculate the quantization error
+            const quantError = [
+                (r - newColor[0]) * strength,
+                (g - newColor[1]) * strength,
+                (b - newColor[2]) * strength
+            ];
+
+            // Distribute the error to neighboring pixels
+            distributeError(errorBuffer, x + 1, y, quantError, (1 / 8), width, height);
+            distributeError(errorBuffer, x + 2, y, quantError, (1 / 8), width, height);
+            distributeError(errorBuffer, x - 1, y + 1, quantError, (1 / 8), width, height);
+            distributeError(errorBuffer, x, y + 1, quantError, (1 / 8), width, height);
+            distributeError(errorBuffer, x + 1, y + 1, quantError, (1 / 8), width, height);
+            distributeError(errorBuffer, x, y + 2, quantError, (1 / 8), width, height);
+        }
+    }
+    return imageData;
 }
 
 function floydSteinbergDithering(imageData, width, height, strength, paletteColors) {
