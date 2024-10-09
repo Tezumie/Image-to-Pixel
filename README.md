@@ -20,7 +20,7 @@ V2 introduces enhanced speed, new features, and a refined interface:
 
 - ⚡ **Highly Optimized**: Instant results for most images, even at larger sizes.
 - 🔄 **Auto-Refresh Toggle**: See changes live as you tweak the settings.
-- ✨ **Dithering Options**: Choose between `Floyd-Steinberg`,`2x2 Bayer`, `4x4 Bayer` and `Ordered`, and adjust dithering strength in real-time.
+- ✨ **Dithering Options**: Choose between `Floyd-Steinberg`,`2x2 Bayer`, `4x4 Bayer`, `Ordered`,`Clustered 4x4` and `atkinson`, and adjust dithering strength in real-time.
 - 🎨 **Palette Support**: Use default palettes from Lospec or import custom ones via Lospec's API using a palette slug (e.g., `rgbg-36` from [Lospec Palette](https://lospec.com/palette-list/rgbg-36)).
 - 💾 **Custom Palette Management**: Create custom palettes, save them to local cache, or download and upload them in JSON format.
 - 📏 **Resolution Control**: Download your pixelated image at the input image’s resolution or as actual pixel art.
@@ -52,7 +52,7 @@ Or use locally (Recommended);
 ditheredCanvas = await pixelate({
   image: myCanvas,             // Accepts HTML canvas, image elements, or q5/p5.js image objects
   width: 128,                  // Set pixelation width
-  dither: 'Floyd-Steinberg',   // Dithering method ('Floyd-Steinberg', 'Ordered','2x2 Bayer' or '4x4 Bayer')
+  dither: 'Floyd-Steinberg',   // Dithering method ('Floyd-Steinberg', 'Ordered','2x2 Bayer', '4x4 Bayer',`Clustered 4x4` or `atkinson`)
   strength: 20,                // Dithering strength (0-100)
   //palette: 'rgbg-36',        // Optional: Lospec palette slug (depends on Lospec API availability)
   //Recommended: Define a custom palette //
