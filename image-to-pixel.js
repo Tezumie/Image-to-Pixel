@@ -265,6 +265,10 @@ function loadOriginalImage(src) {
                 tempCtx.drawImage(src.canvas, 0, 0);
                 img.src = tempCanvas.toDataURL();
             }
+            // t5 element
+            else if (src.element) {
+                img.src = src.element.toDataURL();
+            }
             // Handle unexpected types
             else {
                 console.warn('Unsupported or invalid image source.');
