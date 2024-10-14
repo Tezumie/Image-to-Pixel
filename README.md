@@ -69,7 +69,7 @@ Try a Demo Using image-to-pixel API with q5.js [here](https://aijs.io/editor?use
 
 ![q5-pixel](images/q5-pixel.png)
 
-**Note**: When using with p5js/q5js, for animations, make all drawing operations to a buffer, than use the buffer as the image you pass to 'pixelate'. This is due to how these libraries handle dynamic image loading, the image will load at the begining of the next draw cycle for animations ('loop()') causing the dithered image to be hidden behind anything drawn to the canvas. If you you are only rendering a single dithered image ('noLoop') this issue will not apply as the the dynamically added image will render at the end of the draw loop.
+When using with p5js/q5js, for animations, make all drawing operations to a buffer, than use the buffer as the image you pass to 'pixelate'. This is due to how these libraries handle dynamic image loading, the image will load at the begining of the next draw cycle for animations ('loop()') causing the dithered image to be hidden behind anything drawn to the canvas. If you you are only rendering a single dithered image ('noLoop') this issue will not apply as the the dynamically added image will render at the end of the draw loop.
 
 For Animations use a buffer:
 
@@ -86,6 +86,49 @@ image(ditheredCanvas,0,0)
 ```
 
 ---
+
+You can also set it up with p5/q5 through `p5.prototype.registerMethod`, this will make it where you do not need a buffer! and this will also make it compatible with p5play or other libraries that render differently.
+
+Try a Demo Using image-to-pixel API with p5play [here](https://aijs.io/editor?user=Tezumie&project=p5play_Image-to-pixel).
+
+```js
+
+let myCanvas;// add a reference for the input canvas 
+let ditheredCanvas;//add a reference for the output image
+
+function setup() {
+	myCanvas = createCanvas(windowWidth, windowHeight);
+}
+...
+...
+async function draw() {
+}
+
+p5.prototype.registerMethod('post', async function pixelateAndRender() {
+	ditheredCanvas = await pixelate({
+		image: myCanvas,
+		width: 200,
+		dither: 'ordered',
+		strength: 11,
+		palette: [
+			'#1b1b1e', '#f4f1de', '#e07a5f',
+			'#3d405b', '#495c92', '#596da7', '#81b29a', '#f2cc8f',
+			'#8d5a97', '#ef3054', '#d3d0be', '#4a7762', '#364e43',
+		],
+		resolution: 'original'
+	});
+});
+
+//images drawn in a separate method so they will display ontop of everything.
+p5.prototype.registerMethod('post', async function displayPixelBuffer() {
+	if (ditheredCanvas) {
+		image(ditheredCanvas, 0, 0, width, height);
+	}
+});
+
+```
+
+
 
 ## ❤️ Support
 
