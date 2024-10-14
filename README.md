@@ -55,8 +55,8 @@ ditheredCanvas = await pixelate({
   dither: 'Floyd-Steinberg',   // Dithering method ('Floyd-Steinberg', 'Ordered','2x2 Bayer', '4x4 Bayer',`Clustered 4x4` or `atkinson`)
   strength: 20,                // Dithering strength (0-100)
   //palette: 'rgbg-36',        // Optional: Lospec palette slug (depends on Lospec API availability)
-  //Recommended: Define a custom palette //
-  palette: [
+  //Recommended: Define a custom palette //  // You can also set `palette: null,` to use the colors from your original image //
+  palette: [ 
     '#1b1b1e', '#f4f1de', '#e07a5f',
     '#3d405b', '#81b29a', '#f2cc8f',
     '#8d5a97', '#ef3054'
