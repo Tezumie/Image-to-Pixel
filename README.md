@@ -93,8 +93,7 @@ Try a Demo Using image-to-pixel API with p5play [here](https://aijs.io/editor?us
 
 ```js
 
-let myCanvas;// add a reference for the input canvas 
-let ditheredCanvas;//add a reference for the output image
+let myCanvas; // add a reference for the input canvas 
 
 function setup() {
 	myCanvas = createCanvas(windowWidth, windowHeight);
@@ -104,10 +103,11 @@ function setup() {
 async function draw() {
 }
 
+//-----------------------Function to pixelate entire sketch-----------------------//
 p5.prototype.registerMethod('post', async function pixelateAndRender() {
 	ditheredCanvas = await pixelate({
 		image: myCanvas,
-		width: 200,
+		width: 320,
 		dither: 'ordered',
 		strength: 11,
 		palette: [
@@ -115,15 +115,9 @@ p5.prototype.registerMethod('post', async function pixelateAndRender() {
 			'#3d405b', '#495c92', '#596da7', '#81b29a', '#f2cc8f',
 			'#8d5a97', '#ef3054', '#d3d0be', '#4a7762', '#364e43',
 		],
-		resolution: 'original'
+		resolution: 'pixelated'
 	});
-});
-
-//images drawn in a separate method so they will display ontop of everything.
-p5.prototype.registerMethod('post', async function displayPixelBuffer() {
-	if (ditheredCanvas) {
-		image(ditheredCanvas, 0, 0, width, height);
-	}
+	image(ditheredCanvas, 0, 0, width, height);
 });
 
 ```
