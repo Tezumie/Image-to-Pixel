@@ -9,17 +9,6 @@
  * @param {string} [options.resolution='original'] - 'pixel' for pixelated size, 'original' for original size.
  * @returns {Promise<HTMLCanvasElement|p5.Image|Q5.Image>} - A promise that resolves to a canvas element, p5.Image, or Q5.Image object.
  */
-/**
- * Pixelate and dither an image.
- * @param {Object} options - Configuration options.
- * @param {HTMLCanvasElement|HTMLImageElement|p5.Renderer|p5.Image|Q5.Image|ImageData|string} options.image - Image object, p5 canvas, q5 canvas, ImageData, or URL.
- * @param {number} options.width - Number of pixels wide for the pixelated image.
- * @param {string} [options.dither='none'] - Dithering method: 'none', 'Floyd-Steinberg', 'ordered', '2x2 Bayer', '4x4 Bayer'.
- * @param {number} [options.strength=0] - Dithering strength (0-100).
- * @param {string|Array} [options.palette=null] - Palette name from Lospec or an array of colors.
- * @param {string} [options.resolution='original'] - 'pixel' for pixelated size, 'original' for original size.
- * @returns {Promise<HTMLCanvasElement|p5.Image|Q5.Image>} - A promise that resolves to a canvas element, p5.Image, or Q5.Image object.
- */
 async function pixelate(options) {
     const {
         image,
@@ -56,18 +45,38 @@ async function pixelate(options) {
     const pixelsWide = width;
     const pixelsHigh = Math.round(pixelsWide * aspectRatio);
 
-    // Create offscreen canvas for pixelation
-    const offscreenCanvas = document.createElement('canvas');
-    offscreenCanvas.width = pixelsWide;
-    offscreenCanvas.height = pixelsHigh;
-    const offscreenCtx = offscreenCanvas.getContext('2d');
+    let offscreenCanvas, offscreenCtx;
 
-    // Draw the original image onto the offscreen canvas
-    offscreenCtx.drawImage(
-        originalImageObject,
-        0, 0, originalImageObject.width, originalImageObject.height,
-        0, 0, pixelsWide, pixelsHigh
-    );
+    if (originalImageObject instanceof HTMLCanvasElement) {
+        // Check if the canvas needs to be resized
+        if (originalImageObject.width !== pixelsWide || originalImageObject.height !== pixelsHigh) {
+            // Create an offscreen canvas with the new size
+            offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = pixelsWide;
+            offscreenCanvas.height = pixelsHigh;
+            offscreenCtx = offscreenCanvas.getContext('2d');
+
+            // Draw the original canvas onto the resized offscreen canvas
+            offscreenCtx.drawImage(originalImageObject, 0, 0, pixelsWide, pixelsHigh);
+        } else {
+            // No resizing needed, reuse the original canvas
+            offscreenCanvas = originalImageObject;
+            offscreenCtx = offscreenCanvas.getContext('2d');
+        }
+    } else {
+        // Handle image or other input types by creating an offscreen canvas
+        offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = pixelsWide;
+        offscreenCanvas.height = pixelsHigh;
+        offscreenCtx = offscreenCanvas.getContext('2d');
+
+        // Draw the original image onto the offscreen canvas
+        offscreenCtx.drawImage(
+            originalImageObject,
+            0, 0, originalImageObject.width, originalImageObject.height,
+            0, 0, pixelsWide, pixelsHigh
+        );
+    }
 
     // Get image data for manipulation
     let pixelatedData = offscreenCtx.getImageData(0, 0, pixelsWide, pixelsHigh);
@@ -91,8 +100,7 @@ async function pixelate(options) {
             pixelatedData = orderedDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors, clusteredMatrix);
         } else if (dither.toLowerCase() === 'atkinson') {
             pixelatedData = atkinsonDithering(pixelatedData, pixelsWide, pixelsHigh, ditheringStrength, paletteColors);
-        }
-        else {
+        } else {
             throw new Error(`Unknown dithering method: ${dither}`);
         }
     } else if (paletteColors) {
@@ -102,32 +110,33 @@ async function pixelate(options) {
     // Put processed image data back onto the offscreen canvas
     offscreenCtx.putImageData(pixelatedData, 0, 0);
 
-    // Create the final canvas for rendering
-    const finalCanvas = document.createElement('canvas');
-    const finalCtx = finalCanvas.getContext('2d');
-
-    // Set final canvas dimensions based on the resolution parameter
-    if (resolution === 'pixel') {
-        finalCanvas.width = pixelsWide;
-        finalCanvas.height = pixelsHigh;
-    } else {
+    // If resolution is 'original', scale the image back to its original size
+    if (resolution === 'original' && offscreenCanvas.width !== originalImageObject.width) {
+        const finalCanvas = document.createElement('canvas');
         finalCanvas.width = originalImageObject.width;
         finalCanvas.height = originalImageObject.height;
+        const finalCtx = finalCanvas.getContext('2d');
+        finalCtx.imageSmoothingEnabled = false;
+        finalCtx.drawImage(offscreenCanvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height, 0, 0, finalCanvas.width, finalCanvas.height);
+
+        // Convert the final canvas to a p5.Image or Q5.Image if necessary
+        if (isP5Available) {
+            return canvasToP5Image(finalCanvas);
+        } else if (isQ5Available) {
+            return canvasToQ5Image(finalCanvas);
+        }
+
+        return finalCanvas;
     }
 
-    // Draw the pixelated image onto the final canvas
-    finalCtx.imageSmoothingEnabled = false;
-    finalCtx.drawImage(offscreenCanvas, 0, 0, finalCanvas.width, finalCanvas.height);
-
-    // Convert the final canvas to a p5.Image or Q5.Image if necessary
+    // Return the canvas
     if (isP5Available) {
-        return canvasToP5Image(finalCanvas);
+        return canvasToP5Image(offscreenCanvas);
     } else if (isQ5Available) {
-        return canvasToQ5Image(finalCanvas);
+        return canvasToQ5Image(offscreenCanvas);
     }
 
-    // Return the standard HTMLCanvasElement by default
-    return finalCanvas;
+    return offscreenCanvas;
 }
 
 /**
@@ -219,10 +228,9 @@ function convertP5GraphicsToCanvas(p5Graphics) {
  * @param {any} src - The input image source.
  * @returns {Promise<HTMLImageElement>} - A promise that resolves to an HTMLImageElement.
  */
+
 function loadOriginalImage(src) {
     return new Promise((resolve, reject) => {
-        const img = new Image();
-
         try {
             // Directly resolve if the source is an HTMLImageElement
             if (src instanceof HTMLImageElement) {
@@ -230,65 +238,72 @@ function loadOriginalImage(src) {
                 return;
             }
 
-            // Handle HTMLCanvasElement
+            // Handle HTMLCanvasElement, return the canvas directly
             if (src instanceof HTMLCanvasElement) {
-                img.src = src.toDataURL();
+                resolve(src); // return the canvas directly
+                return;
             }
-            // Handle ImageData type by converting it to a canvas
-            else if (src instanceof ImageData) {
+
+            // Handle ImageData by converting it to a canvas
+            if (src instanceof ImageData) {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = src.width;
                 tempCanvas.height = src.height;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.putImageData(src, 0, 0);
-                img.src = tempCanvas.toDataURL();
+                resolve(tempCanvas); // return the created canvas
+                return;
             }
-            // Handle URL strings
-            else if (typeof src === 'string') {
-                img.crossOrigin = 'Anonymous';
-                img.src = src;
+
+            // Handle p5.Graphics or p5.Renderer, return the canvas directly
+            if (src.elt && src.elt instanceof HTMLCanvasElement) {
+                resolve(src.elt); // p5.Graphics or p5.Renderer object, return canvas
+                return;
             }
-            // Handle p5.Graphics, p5.Renderer, and Q5.Image by checking for `elt` or `canvas` properties
-            else if (src.elt && src.elt instanceof HTMLCanvasElement) {
-                // p5.Graphics or p5.Renderer object
-                img.src = src.elt.toDataURL();
-            } else if (src.canvas && src.canvas instanceof HTMLCanvasElement) {
-                // Q5.Image or Q5.Graphics object
-                img.src = src.canvas.toDataURL();
+
+            // Handle Q5.Image or Q5.Graphics, return the canvas directly
+            if (src.canvas && src.canvas instanceof HTMLCanvasElement) {
+                resolve(src.canvas); // Q5.Graphics or Q5.Image object, return canvas
+                return;
             }
-            // Handle OffscreenCanvas
-            else if (src.canvas instanceof OffscreenCanvas) {
+
+            // Handle OffscreenCanvas, convert it to an HTMLCanvasElement
+            if (src.canvas instanceof OffscreenCanvas) {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = src.canvas.width;
                 tempCanvas.height = src.canvas.height;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.drawImage(src.canvas, 0, 0);
-                img.src = tempCanvas.toDataURL();
+                resolve(tempCanvas); // return the converted canvas
+                return;
             }
-            // t5 element
-            else if (src.element) {
-                img.src = src.element.toDataURL();
+            //Handle T5js
+            if (src.element) {
+                resolve(src.element);
+                return;
             }
-            // Handle unexpected types
-            else {
-                console.warn('Unsupported or invalid image source.');
-                reject(new Error('Unsupported or invalid image source.'));
+            // Handle URL strings by loading an image
+            if (typeof src === 'string') {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.src = src;
+
+                img.onload = () => resolve(img);
+                img.onerror = (err) => {
+                    reject(new Error(`Failed to load image: ${err.message}`));
+                };
                 return;
             }
 
-            // Set up event listeners for image loading
-            img.onload = () => resolve(img);
-            img.onerror = (err) => {
-                console.warn(`Failed to load image from source. Error: ${err.message}`);
-                reject(new Error(`Failed to load image: ${err.message}`));
-            };
+            // Handle unexpected sources
+            console.warn('Unsupported or invalid image source.');
+            reject(new Error('Unsupported or invalid image source.'));
         } catch (error) {
             console.warn(`Error when loading image: ${error.message}`);
             reject(error);
         }
     });
 }
-
 
 let cachedPalette = { name: null, colors: null };
 function fetchPalette(paletteName) {
