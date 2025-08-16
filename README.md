@@ -105,8 +105,13 @@ p5.prototype.registerMethod('post', async function pixelateAndRender() {
 });
 
 ```
+---
 
+## 🔗 Related Projects
 
+- [Image-to-triangle](https://github.com/Tezumie/Image-to-triangle) — A companion library for turning images into **triangulation art**.
+- 
+---
 
 ## ❤️ Support
 
@@ -129,3 +134,4 @@ The image-to-pixel application itself is licensed under the [Apache License 2.0]
 **Note:** While the image-to-pixel.js library is freely available under the MIT License, the application code is distributed under the Apache License 2.0. Ensure you review both licenses to understand your rights and obligations when using or modifying this project.
 
 ---
+
