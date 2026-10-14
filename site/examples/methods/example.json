@@ -1,0 +1,1 @@
+{ "title": "Every dither method", "description": "One image, one palette, each method side by side. Useful for choosing a look.", "order": 3, "tags": ["Dithering"], "sample": "still-life", "preview": { "palette": { "source": "builtin", "id": "nyx8" }, "dither": { "method": "bluenoise" } } }

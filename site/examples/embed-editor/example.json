@@ -1,0 +1,1 @@
+{ "title": "Embed the editor", "description": "Mount the full editor inside your own page with mountEditor() and one stylesheet.", "order": 7, "tags": ["Editor", "Embed"], "sample": "potion", "preview": { "palette": { "source": "builtin", "id": "endesga-32" }, "dither": { "method": "bayer4" } } }

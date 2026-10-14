@@ -1,0 +1,1 @@
+{ "title": "Load, dither, download", "description": "Open an image, pick a palette and a dither method, save a PNG. The smallest useful program.", "order": 1, "tags": ["ES module", "PNG"], "sample": "dusk", "preview": { "palette": { "source": "builtin", "id": "sweetie-16" }, "dither": { "method": "bayer4" } } }

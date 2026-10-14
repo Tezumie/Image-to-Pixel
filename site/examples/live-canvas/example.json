@@ -1,0 +1,1 @@
+{ "title": "Live canvas", "description": "Pixelate an animated 2D canvas every frame, the way you would a game or a generative sketch.", "order": 5, "tags": ["Real time", "Canvas"], "sample": "dusk", "preview": { "palette": { "source": "builtin", "id": "slso8" }, "dither": { "method": "bayer8" } } }

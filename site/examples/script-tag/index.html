@@ -1,0 +1,29 @@
+<div class="demo-area">
+  <div class="row" id="out"></div>
+</div>
+
+<script src="../../lib/image-to-pixel.min.js"></script>
+<script>
+  // The global is ImageToPixel. From a CDN this would be
+  // https://cdn.jsdelivr.net/npm/image-to-pixel@3/dist/image-to-pixel.min.js
+  const img = new Image();
+  img.src = '../../assets/samples/still-life.svg';
+  img.onload = async () => {
+    // the same call the 2.x library took; returns a canvas
+    const canvas = await ImageToPixel.pixelate({
+      image: img,
+      width: 96,
+      dither: 'Floyd-Steinberg',
+      strength: 60,
+      palette: ['#1b1b1e', '#f4f1de', '#e07a5f', '#3d405b', '#81b29a', '#f2cc8f', '#8d5a97', '#ef3054'],
+      resolution: 'original',          // 'original' scales back up to the source size, 'pixel' keeps it small
+    });
+    canvas.className = 'out';
+    const fig = document.createElement('figure');
+    fig.append(canvas);
+    const cap = document.createElement('figcaption');
+    cap.textContent = `${canvas.width} × ${canvas.height} canvas`;
+    fig.append(cap);
+    document.getElementById('out').append(fig);
+  };
+</script>

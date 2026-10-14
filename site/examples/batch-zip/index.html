@@ -1,0 +1,52 @@
+<div class="demo-area">
+  <div class="controls">
+    <input type="file" id="files" accept="image/*" multiple aria-label="Choose images">
+    <button class="btn primary" id="zip" type="button">Download ZIP</button>
+  </div>
+  <div class="row" id="out"></div>
+</div>
+
+<script type="module">
+  import { createPixelator, encodePNG, createZip, downloadBlob, settingsToJSON } from '../../lib/image-to-pixel.bundle.esm.js';
+
+  const settings = {
+    size: { width: 64 },
+    palette: { source: 'builtin', id: 'resurrect-64' },
+    dither: { method: 'none' },
+    outline: { mode: 'outer', color: '#2e222f' },
+    export: { scale: 4 },
+  };
+  const px = await createPixelator();
+  let results = [];
+
+  async function load(sources) {
+    const out = document.getElementById('out');
+    out.replaceChildren();
+    results = [];
+    for (const { name, source } of sources) {
+      const r = await px.process(source, settings);       // one engine, many images
+      results.push({ name, r });
+      const fig = document.createElement('figure');
+      const canvas = r.toCanvas(1); canvas.className = 'out';
+      const cap = document.createElement('figcaption'); cap.textContent = name;
+      fig.append(canvas, cap); out.append(fig);
+    }
+  }
+
+  document.getElementById('files').onchange = async e =>
+    load(await Promise.all([...e.target.files].map(async f => ({ name: f.name, source: await createImageBitmap(f) }))));
+
+  document.getElementById('zip').onclick = async () => {
+    const entries = [];
+    for (const { name, r } of results) entries.push({ name: name.replace(/\.\w+$/, '') + '.png', data: await r.toPNG({ scale: 4 }) });
+    entries.push({ name: 'settings.json', data: settingsToJSON(settings) });
+    downloadBlob(createZip(entries), 'batch.zip', 'application/zip');
+  };
+
+  // start with the bundled samples
+  const samples = await Promise.all(['dusk', 'still-life', 'potion'].map(async id => {
+    const img = new Image(); img.src = `../../assets/samples/${id}.svg`; await img.decode();
+    return { name: `${id}.svg`, source: img };
+  }));
+  load(samples);
+</script>

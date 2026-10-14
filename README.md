@@ -1,137 +1,69 @@
-# 🎨 Image-to-Pixel
+# Image-to-Pixel
 
-An intuitive editor for converting images into pixel art, applying dithering effects, and managing custom palettes!  
-Available as both an interactive **application** and a **JavaScript API**. 
+Turn images and video into pixel art. A free, open-source editor that runs in your browser, and the engine behind it as an npm package.
 
-**👉 Try it live here**: [Image-to-Pixel Editor](https://tezumie.github.io/Image-to-Pixel/)
+**[Open the editor](https://tezumie.github.io/Image-to-Pixel/editor/)** · [Docs](https://tezumie.github.io/Image-to-Pixel/docs/) · [Examples](https://tezumie.github.io/Image-to-Pixel/examples/) · [Classic 2.x editor](https://tezumie.github.io/Image-to-Pixel/classic/)
 
-👴 Looking for the old editor? You can find it [here](https://aijs-code-editor-user-content.web.app/xCzvqwLDxaXjkLrxAeFpzGGnpTA2/Projects/Image-to-Pixel-Classic/index.html).
+- **16 dither methods**: Bayer 2–16, clustered dot, blue noise, custom matrices, and Floyd–Steinberg, Atkinson, Sierra, Burkes, Jarvis and Stucki diffusion.
+- **Palettes**: 24 built in, extracted from the image, picked by hand, or imported from .gpl, .hex, .pal, .txt, JSON and Lospec.
+- **Batches and video**: one set of settings for many files; frame-accurate video export to GIF, WebM, MP4 or PNG sequences.
+- **Game-ready output**: integer-scaled and indexed PNGs, sprite sheets with JSON atlases, deduplicated tilesets.
+- **GPU first**: every step is a WebGL 2 shader pass run by [ShaderMate](https://github.com/Tezumie/ShaderMate). The CPU path gives identical pixels when WebGL isn't there, including in Node.
 
-💫 This project was built entirely in [aijs browser based code editor](https://aijs.io/home). 🙌
+## Library
 
-![cover image](images/ui.PNG)
-
----
-
-## 🚀 Application Features
-
-**Version 2.0**  
-V2 introduces enhanced speed, new features, and a refined interface:
-
-- ⚡ **Highly Optimized**: Instant results for most images, even at larger sizes.
-- 🔄 **Auto-Refresh Toggle**: See changes live as you tweak the settings.
-- ✨ **Dithering Options**: Choose between `Floyd-Steinberg`,`2x2 Bayer`, `4x4 Bayer`, `Ordered`,`Clustered 4x4` and `atkinson`, and adjust dithering strength in real-time.
-- 🎨 **Palette Support**: Use default palettes from Lospec or import custom ones via Lospec's API using a palette slug (e.g., `rgbg-36` from [Lospec Palette](https://lospec.com/palette-list/rgbg-36)).
-- 💾 **Custom Palette Management**: Create custom palettes, save them to local cache, or download and upload them in JSON format.
-- 📏 **Resolution Control**: Download your pixelated image at the input image’s resolution or as actual pixel art.
-- 🔍 **Auto-Detect Image Size**: Easily set the pixel width to match the original image size (great for spritesheets).
-
----
-
-## 🛠️ Using the API
-
-You can use the `image-to-pixel` library in your own projects. Pass an image and options to the `pixelate` function, and get a beautifully dithered image in return.  
-**Note**: The API is still a work in progress; official documentation is under development.
-
-### Example Usage
-
-Add the library to your project:
-
-Use via CDN;
-```html
-<script src="https://cdn.jsdelivr.net/gh/Tezumie/Image-to-Pixel@main/image-to-pixel.js"></script>
+```bash
+npm i image-to-pixel
 ```
-
-Or use locally (Recommended);
-```html
-<script src="image-to-pixel.js"></script>
-```
-
-### JavaScript Example
-```js
-ditheredCanvas = await pixelate({
-  image: myCanvas,             // Accepts HTML canvas, image elements, or q5/p5.js image objects
-  width: 128,                  // Set pixelation width
-  dither: 'Floyd-Steinberg',   // Dithering method ('Floyd-Steinberg', 'Ordered','2x2 Bayer', '4x4 Bayer',`Clustered 4x4` or `atkinson`)
-  strength: 20,                // Dithering strength (0-100)
-  //palette: 'rgbg-36',        // Optional: Lospec palette slug (depends on Lospec API availability)
-  //Recommended: Define a custom palette //  // You can also set `palette: null,` to use the colors from your original image //
-  palette: [ 
-    '#1b1b1e', '#f4f1de', '#e07a5f',
-    '#3d405b', '#81b29a', '#f2cc8f',
-    '#8d5a97', '#ef3054'
-  ],
-  resolution: 'original'       // Use 'original' for full resolution, or 'pixel' for pixelated size
-});
-
-```
-Try a Demo Using image-to-pixel API with q5.js [here](https://aijs.io/editor?user=Tezumie&project=image-to-pixel-q5-p5).
-
-![q5-pixel](images/q5-pixel.png)
-
----
-
-You can also set it up with p5/q5 through `p5.prototype.registerMethod`.
-
-Try a Demo Using image-to-pixel API with p5play [here](https://aijs.io/editor?user=Tezumie&project=p5play_Image-to-pixel).
 
 ```js
+import { createPixelator } from 'image-to-pixel';
 
-let myCanvas; // add a reference for the input canvas 
-
-function setup() {
-	myCanvas = createCanvas(windowWidth, windowHeight);
-}
-...
-...
-async function draw() {
-}
-
-//-----------------------Function to pixelate entire sketch-----------------------//
-p5.prototype.registerMethod('post', async function pixelateAndRender() {
-	ditheredCanvas = await pixelate({
-		image: myCanvas,
-		width: 320,
-		dither: 'ordered',
-		strength: 11,
-		palette: [
-			'#1b1b1e', '#f4f1de', '#e07a5f',
-			'#3d405b', '#495c92', '#596da7', '#81b29a', '#f2cc8f',
-			'#8d5a97', '#ef3054', '#d3d0be', '#4a7762', '#364e43',
-		],
-		resolution: 'pixelated'
-	});
-	image(ditheredCanvas, 0, 0, width, height);
+const px = await createPixelator();
+const result = await px.process(imageElement, {
+  size: { width: 128 },
+  palette: { source: 'builtin', id: 'pico-8' },
+  dither: { method: 'floyd-steinberg', strength: 0.8 },
 });
 
+document.body.append(result.toCanvas(4));
+const png = await result.toBlob({ scale: 4 });
 ```
----
 
-## 🔗 Related Projects
+Script tag (global `ImageToPixel`):
 
-- [Image-to-triangle](https://github.com/Tezumie/Image-to-triangle) — A companion library for turning images into **triangulation art**.
-- 
----
+```html
+<script src="https://cdn.jsdelivr.net/npm/image-to-pixel@3/dist/image-to-pixel.min.js"></script>
+```
 
-## ❤️ Support
+The 2.x call, `pixelate({ image, width, dither, strength, palette, resolution })`, still works. See [Migrating](https://tezumie.github.io/Image-to-Pixel/docs/migrating/).
 
-If you’d like to support the project, consider sharing your creations using the editor and tag me on Twitter [@tezumies](https://twitter.com/tezumies). Your feedback and shared art are greatly appreciated!
+| Entry | |
+| --- | --- |
+| `image-to-pixel` | The engine, settings, palettes, encoders (PNG, GIF, ZIP), sprite sheets, tilesets, video stepping |
+| `image-to-pixel/video` | MP4 and WebM encoding with WebCodecs |
+| `image-to-pixel/editor` + `editor.css` | The full editor, mountable in any element |
 
-- For more pixel art goodness, check out the full-featured app [**Dither Dragon**](https://winterveil.itch.io/ditherdragon), offering even more options including animation support!  
-- Want to contribute? Consider [becoming a patron](https://www.patreon.com/aijscodeeditor). Your support helps maintain and expand the project.
+## Development
 
-Happy pixelating! ✨
+Node 22. Every script is plain Node, so it works the same in PowerShell, bash and browser IDEs.
 
+```bash
+npm install
+npm run dev          # http://localhost:8080/Image-to-Pixel/, rebuilds on change
+npm test             # build dist/ and _site/, then node --test
+npm run build:site   # static site in _site/ (what GitHub Pages serves)
+npm run preview      # serve _site/
+```
 
-## 📄 License
+Pushing to `main` runs the tests and deploys the site with `.github/workflows/site.yml`. Set Pages to "GitHub Actions" in the repository settings.
 
-### 💽 image-to-pixel labrary
-The image-to-pixel library (image-to-pixel.js) used in this project is licensed under the [MIT License](https://opensource.org/licenses/MIT). You can find the full license text in the [`LICENSE-library`](LICENSE-library) file.
+Repository layout, tests and how to add a dither method, palette, docs page or example: [Contributing](https://tezumie.github.io/Image-to-Pixel/docs/contributing/).
 
-### 🖥️ Application
-The image-to-pixel application itself is licensed under the [Apache License 2.0](https://opensource.org/licenses/Apache-2.0). Please refer to the [`LICENSE-app`](LICENSE-app) file for more details.
+The classic editor (`index.html`, `image-to-pixel.js`, `css/`, `src/`) is kept unchanged at the root and published at `/classic/`.
 
-**Note:** While the image-to-pixel.js library is freely available under the MIT License, the application code is distributed under the Apache License 2.0. Ensure you review both licenses to understand your rights and obligations when using or modifying this project.
+## Licence
 
----
+MIT, see [LICENSE](LICENSE). This covers the new library, editor and site. The classic 2.x files keep their original licence files (`LICENSE-library.txt`, `LICENSE-app.txt`).
 
+Built-in palettes come from [Lospec](https://lospec.com/palette-list) and are credited to their authors in the editor. Geist and JetBrains Mono are under the SIL Open Font License.

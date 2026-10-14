@@ -1,0 +1,42 @@
+<div class="demo-area">
+  <div class="controls">
+    <select id="palette" aria-label="Palette"></select>
+    <label class="note">Strength <input type="range" id="strength" min="0" max="100" value="80" aria-label="Strength"></label>
+  </div>
+  <div class="row" id="grid"></div>
+</div>
+
+<script type="module">
+  import { createPixelator, PALETTES, DITHER_METHODS } from '../../lib/image-to-pixel.bundle.esm.js';
+
+  const px = await createPixelator();
+  const img = new Image();
+  img.src = '../../assets/samples/still-life.svg';
+  await img.decode();
+
+  const sel = document.getElementById('palette');
+  for (const p of PALETTES) sel.add(new Option(p.name, p.id, false, p.id === 'nyx8'));
+  const strength = document.getElementById('strength');
+
+  const cells = DITHER_METHODS.map(m => {
+    const canvas = document.createElement('canvas'); canvas.className = 'out';
+    const fig = document.createElement('figure'); const cap = document.createElement('figcaption');
+    cap.textContent = m.label; fig.append(canvas, cap);
+    document.getElementById('grid').append(fig);
+    return { m, canvas };
+  });
+
+  async function render() {
+    for (const { m, canvas } of cells) {
+      const r = await px.process(img, {
+        size: { width: 96 },
+        palette: { source: 'builtin', id: sel.value },
+        dither: { method: m.id, strength: strength.value / 100 },
+      });
+      r.toCanvas(1, { canvas });
+    }
+  }
+  sel.onchange = render;
+  strength.onchange = render;
+  render();
+</script>

@@ -1,0 +1,12 @@
+<link rel="stylesheet" href="../../lib/editor.css">
+<div id="editor" style="height:620px;border:1px solid var(--line);border-radius:10px;overflow:hidden"></div>
+
+<script type="module">
+  import { mountEditor } from '../../lib/editor.esm.js';
+
+  const editor = await mountEditor(document.getElementById('editor'), {
+    persist: false,                              // don't share settings with the main editor
+    settings: { size: { width: 64 }, palette: { source: 'builtin', id: 'endesga-32' } },
+  });
+  editor.openSample('potion');
+</script>

@@ -1,0 +1,1 @@
+{ "title": "Batch to ZIP", "description": "Process several images with one settings object and download them as a single ZIP.", "order": 4, "tags": ["Batch", "ZIP"], "sample": "potion", "preview": { "palette": { "source": "builtin", "id": "resurrect-64" }, "dither": { "method": "none" }, "outline": { "mode": "outer", "color": "#2e222f" } } }

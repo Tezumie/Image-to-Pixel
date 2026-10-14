@@ -1,0 +1,90 @@
+<main id="main">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Pixel art from any image or video.</h1>
+      <p class="lede">Resize, quantise and dither in your browser. Sixteen dither methods, two dozen palettes plus your own, batches, video, sprite sheets. Free and open source, and nothing is uploaded anywhere.</p>
+      <div class="cta">
+        <a class="btn primary" href="{{root}}editor/"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/></svg>Open the editor</a>
+        <a class="btn" href="{{root}}docs/">Read the docs</a>
+      </div>
+      <div class="install"><span>npm i image-to-pixel</span><button type="button" data-copy="npm i image-to-pixel">Copy</button></div>
+    </div>
+    <figure class="demo" aria-label="Live demo: drag to compare the original and the pixel-art version">
+      <div class="demo-stage" id="demo-stage">
+        <canvas class="px" id="demo-px" aria-hidden="true"></canvas>
+        <canvas class="orig" id="demo-orig" aria-hidden="true"></canvas>
+        <div class="demo-split" aria-hidden="true"></div>
+        <span class="demo-label l">Original</span><span class="demo-label r">Pixel</span>
+      </div>
+      <div class="demo-bar" id="demo-bar" role="group" aria-label="Try a look"></div>
+    </figure>
+  </div>
+  <div class="wrap">
+    <div class="stats" aria-label="At a glance">
+      <div class="stat"><b>16</b><span>dither methods</span></div>
+      <div class="stat"><b>24</b><span>built-in palettes</span></div>
+      <div class="stat"><b>GPU</b><span>WebGL 2, CPU fallback</span></div>
+      <div class="stat"><b>1</b><span>runtime dependency</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2>What the editor does</h2>
+    <p>Every control updates the preview as you move it. Settings are shared across every file you open, so a batch looks consistent.</p>
+    <div class="features">
+      <div class="feature"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/></svg><h3>Dithering</h3><p>Bayer 2–16, clustered dot, blue noise and your own matrices; Floyd–Steinberg, Atkinson, Sierra, Burkes, Jarvis and Stucki diffusion.</p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.8-.9 1.4-2l-.3-.8c-.4-1.2.5-2.2 1.7-2.2h1.7a4 4 0 0 0 4-4c0-4.4-3.8-8-8.5-8Z"/><circle cx="8" cy="11" r="1"/><circle cx="11" cy="7.5" r="1"/><circle cx="15.5" cy="8.5" r="1"/></svg><h3>Palettes</h3><p>Built-ins from Lospec, palettes pulled from the image, colours picked by hand, and .gpl, .hex, .pal or Lospec imports.</p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4H15l4 4v8.5a1.5 1.5 0 0 1-1.5 1.5H16"/><rect x="4.5" y="7" width="11.5" height="13" rx="1.5"/></svg><h3>Batches</h3><p>Drop a folder's worth of images, tune once, and download them all as one ZIP with the settings file inside.</p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M7.5 4.5v15M16.5 4.5v15M3.5 9h4M3.5 15h4M16.5 9h4M16.5 15h4"/></svg><h3>Video</h3><p>Preview while it plays, step frame by frame, then export GIF, WebM, MP4 or a PNG sequence. Every frame is processed exactly once.</p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><path d="M13.5 17h7M17 13.5v7"/></svg><h3>Game-ready output</h3><p>Integer-scaled PNGs, indexed PNGs, sprite sheets with a JSON atlas, and deduplicated tilesets with a tile map.</p></div>
+      <div class="feature"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7L11.5 6.8"/><path d="M14 10a4 4 0 0 0-5.7 0l-2.8 2.8a4 4 0 0 0 5.7 5.7l1.3-1.3"/></svg><h3>Share a look</h3><p>Copy a link that carries your settings, or save them as JSON. Undo and redo cover every change.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      <h2>Use the engine in your own code</h2>
+      <p style="color:var(--text-2);margin:0 0 18px">The editor is built on a small library with no UI. Import it as an ES module or drop in a script tag; TypeScript types are included.</p>
+      <ul>
+        <li><b>Same output everywhere.</b> The GPU path and the CPU fallback produce identical pixels.</li>
+        <li><b>Runs in Node</b> for <code>{ width, height, data }</code> buffers, on the CPU.</li>
+        <li><b>Compatible</b> with the old <code>pixelate({ image, width, … })</code> call.</li>
+      </ul>
+      <p style="margin-top:20px"><a class="btn" href="{{root}}docs/library/">Library reference</a></p>
+    </div>
+<figure class="code"><figcaption>JavaScript</figcaption><pre><code><span class="hljs-keyword">import</span> { createPixelator } <span class="hljs-keyword">from</span> <span class="hljs-string">'image-to-pixel'</span>;
+
+<span class="hljs-keyword">const</span> px = <span class="hljs-keyword">await</span> createPixelator();
+<span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> px.process(imageElement, {
+  size: { width: <span class="hljs-number">128</span> },
+  palette: { source: <span class="hljs-string">'builtin'</span>, id: <span class="hljs-string">'pico-8'</span> },
+  dither: { method: <span class="hljs-string">'floyd-steinberg'</span>, strength: <span class="hljs-number">0.8</span> },
+});
+
+document.body.append(result.toCanvas(<span class="hljs-number">4</span>));     <span class="hljs-comment">// 4× nearest-neighbour</span>
+<span class="hljs-keyword">const</span> png = <span class="hljs-keyword">await</span> result.toBlob({ scale: <span class="hljs-number">4</span> });  <span class="hljs-comment">// indexed PNG</span></code></pre><button class="copy" type="button" aria-label="Copy code">Copy</button></figure>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap split">
+    <div>
+      <h2>How it renders</h2>
+      <p style="color:var(--text-2);margin:0">Each step is a WebGL fragment shader run through <a href="https://github.com/Tezumie/ShaderMate">ShaderMate</a>. Error diffusion is normally one pixel at a time; here it runs as a diagonal wavefront, so every pixel on a wave is solved in parallel and the result still matches the sequential algorithm.</p>
+      <p style="margin-top:20px"><a class="btn" href="{{root}}docs/how-it-works/">How it works</a></p>
+    </div>
+    <ul>
+      <li><b>Prepare.</b> Box-filter resample, brightness, contrast, saturation, gamma, alpha cut.</li>
+      <li><b>Quantise.</b> Nearest palette colour in OKLab, with an ordered threshold or a diffusion wave.</li>
+      <li><b>Clean up.</b> Stray-pixel removal, majority smoothing, inner or outer outline.</li>
+      <li><b>Export.</b> Read back once; PNG, GIF, ZIP and video encoders run in the page.</li>
+    </ul>
+  </div>
+</section>
+</main>
+{{footer}}

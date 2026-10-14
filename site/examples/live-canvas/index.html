@@ -1,0 +1,46 @@
+<div class="demo-area">
+  <div class="controls">
+    <select id="method" aria-label="Dither method">
+      <option value="bayer8">Bayer 8×8</option><option value="bluenoise">Blue noise</option><option value="none">None</option><option value="floyd-steinberg">Floyd–Steinberg</option>
+    </select>
+    <span class="note" id="fps"></span>
+  </div>
+  <div class="row">
+    <figure><canvas id="scene" width="480" height="320" style="width:100%;height:auto;border-radius:6px"></canvas><figcaption>Source canvas</figcaption></figure>
+    <figure><canvas class="out" id="out"></canvas><figcaption>Pixelated, every frame</figcaption></figure>
+  </div>
+</div>
+
+<script type="module">
+  import { createPixelator } from '../../lib/image-to-pixel.bundle.esm.js';
+
+  const scene = document.getElementById('scene');
+  const g = scene.getContext('2d');
+  const px = await createPixelator();
+  const settings = { size: { width: 120 }, palette: { source: 'builtin', id: 'slso8' }, dither: { method: 'bayer8', strength: 0.9 } };
+  document.getElementById('method').onchange = e => { settings.dither.method = e.target.value; };
+
+  function draw(t) {
+    const sky = g.createLinearGradient(0, 0, 0, 320);
+    sky.addColorStop(0, '#0d2b45'); sky.addColorStop(1, '#ffaa5e');
+    g.fillStyle = sky; g.fillRect(0, 0, 480, 320);
+    for (let i = 0; i < 6; i++) {
+      const x = 240 + Math.cos(t / 900 + i) * 150, y = 160 + Math.sin(t / 700 + i * 2) * 90;
+      const r = g.createRadialGradient(x - 10, y - 10, 4, x, y, 46);
+      r.addColorStop(0, '#ffecd6'); r.addColorStop(0.5, '#d08159'); r.addColorStop(1, '#203c56');
+      g.fillStyle = r; g.beginPath(); g.arc(x, y, 44, 0, Math.PI * 2); g.fill();
+    }
+  }
+
+  let last = performance.now(), frames = 0;
+  async function loop(t) {
+    draw(t);
+    px.invalidate();                              // same canvas object, new contents
+    const r = await px.process(scene, settings);
+    r.toCanvas(1, { canvas: document.getElementById('out') });
+    frames++;
+    if (t - last > 1000) { document.getElementById('fps').textContent = `${frames} fps, ${r.ms.toFixed(1)} ms per frame on ${r.backend}`; frames = 0; last = t; }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+</script>

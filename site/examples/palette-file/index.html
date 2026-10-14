@@ -1,0 +1,38 @@
+<div class="demo-area">
+  <div class="row">
+    <div>
+      <textarea id="text" rows="12" aria-label="Palette text">GIMP Palette
+Name: Sunset 8
+#
+ 43  15  84	2b0f54
+171  31 101	ab1f65
+255  79 105	ff4f69
+255 247 248	fff7f8
+255 129  66	ff8142
+255 218  69	ffda45
+ 51 104 220	3368dc
+ 73 231 236	49e7ec</textarea>
+      <p class="note" id="msg"></p>
+    </div>
+    <canvas class="out" id="out"></canvas>
+  </div>
+</div>
+
+<script type="module">
+  import { createPixelator, parsePalette } from '../../lib/image-to-pixel.bundle.esm.js';
+
+  const px = await createPixelator();
+  const img = new Image(); img.src = '../../assets/samples/dusk.svg'; await img.decode();
+  const text = document.getElementById('text'), msg = document.getElementById('msg');
+
+  async function apply() {
+    try {
+      const { name, colors } = parsePalette(text.value);     // .gpl, .hex, .pal, .txt, JSON or loose hex
+      const r = await px.process(img, { size: { width: 110 }, palette: { source: 'custom', name, colors }, dither: { method: 'atkinson', strength: 0.9 } });
+      r.toCanvas(1, { canvas: document.getElementById('out') });
+      msg.textContent = `${name || 'Palette'}: ${colors.length} colours`;
+    } catch (e) { msg.textContent = e.message; }
+  }
+  text.oninput = apply;
+  apply();
+</script>
