@@ -191,7 +191,7 @@ write('404.html', page({
 (function(){var h=location.hostname,s=location.pathname.split('/')[1];var b=document.createElement('base');b.href=(/github\\.io$/.test(h)&&s?'/'+s+'/':'/');document.head.appendChild(b);})();</script>`));
 
 // ---- the classic (v2) editor, copied unchanged
-const classic = ['index.html', 'image-to-pixel.js', 'css', 'src', 'images', 'LICENSE-app.txt', 'LICENSE-library.txt'];
+const classic = ['index.html', 'image-to-pixel.js', 'css', 'src', 'images'];
 for (const f of classic) if (existsSync(join(ROOT, f))) copy(join(ROOT, f), join(OUT, 'classic', f));
 
 write('.nojekyll', '');

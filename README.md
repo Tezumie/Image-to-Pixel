@@ -64,6 +64,6 @@ The classic editor (`index.html`, `image-to-pixel.js`, `css/`, `src/`) is kept u
 
 ## Licence
 
-MIT, see [LICENSE](LICENSE). This covers the new library, editor and site. The classic 2.x files keep their original licence files (`LICENSE-library.txt`, `LICENSE-app.txt`).
+MIT, see [LICENSE](LICENSE). This covers everything in the repository: the library, the editor, the site and the classic 2.x files.
 
 Built-in palettes come from [Lospec](https://lospec.com/palette-list) and are credited to their authors in the editor. Geist and JetBrains Mono are under the SIL Open Font License.
