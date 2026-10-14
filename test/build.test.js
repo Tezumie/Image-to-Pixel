@@ -24,7 +24,7 @@ test('package.json is publishable', () => {
 test('every bundle was built', () => {
   for (const f of ['image-to-pixel.esm.js', 'image-to-pixel.cjs', 'image-to-pixel.js', 'image-to-pixel.min.js', 'image-to-pixel.bundle.esm.js', 'video.esm.js', 'editor.esm.js', 'editor.css'])
     assert.ok(existsSync(dist(f)), f);
-  assert.match(readFileSync(dist('image-to-pixel.min.js'), 'utf8'), /^\/\*! image-to-pixel v3 \| MIT/);
+  assert.ok(readFileSync(dist('image-to-pixel.min.js'), 'utf8').startsWith(`/*! image-to-pixel v${pkg.version} | MIT`));
 });
 
 test('ESM build matches the source API', async () => {

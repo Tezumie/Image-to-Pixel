@@ -70,7 +70,8 @@ mkdirSync(OUT, { recursive: true });
 // bundles: one build per output file, array entryPoints + outfile, no code splitting.
 // That's the subset every esbuild flavour handles (native, esbuild-wasm, in-browser IDE shims).
 const bundle = (entry, outfile, opts = {}) => esbuild.build({
-  entryPoints: [entry], outfile: join(OUT, outfile), bundle: true, minify: true, logLevel: 'warning', ...opts,
+  entryPoints: [entry], outfile: join(OUT, outfile), bundle: true, minify: true, logLevel: 'warning',
+  define: { __ITP_VERSION__: JSON.stringify(pkg.version) }, ...opts,
 });
 const pageJS = { format: 'esm', sourcemap: true, target: 'es2022', external: ['node:*'] };
 await bundle(join(SITE, 'assets/editor-page.js'), 'assets/editor.js', pageJS);

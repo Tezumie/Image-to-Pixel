@@ -6,12 +6,14 @@ import { copy } from './scripts/fsutil.mjs';
 import { rmSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 
 const watch = process.argv.includes('--watch');
-const banner = { js: '/*! image-to-pixel v3 | MIT | https://github.com/Tezumie/Image-to-Pixel */' };
-const common = { absWorkingDir: ROOT, bundle: true, sourcemap: true, target: 'es2020', banner, logLevel: 'warning', external: ['node:*'] };
+const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+const banner = { js: `/*! image-to-pixel v${pkg.version} | MIT | https://github.com/Tezumie/Image-to-Pixel */` };
+const common = { absWorkingDir: ROOT, define: { __ITP_VERSION__: JSON.stringify(pkg.version) }, bundle: true, sourcemap: true, target: 'es2020', banner, logLevel: 'warning', external: ['node:*'] };
 
 const builds = [
   // core: ShaderMate stays a dependency for bundler users …
