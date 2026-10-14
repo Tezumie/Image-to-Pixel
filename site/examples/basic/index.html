@@ -1,0 +1,39 @@
+<div class="demo-area">
+  <div class="controls">
+    <input type="file" id="file" accept="image/*" aria-label="Choose an image">
+    <select id="palette" aria-label="Palette"></select>
+    <select id="method" aria-label="Dither method"></select>
+    <button class="btn primary" id="save" type="button">Download PNG</button>
+  </div>
+  <canvas class="out" id="out" width="1" height="1"></canvas>
+  <p class="note" id="info"></p>
+</div>
+
+<script type="module">
+  import { createPixelator, PALETTES, DITHER_METHODS, downloadBlob } from '../../lib/image-to-pixel.bundle.esm.js';
+
+  const $ = id => document.getElementById(id);
+  for (const p of PALETTES) $('palette').add(new Option(`${p.name} (${p.colors.length})`, p.id, false, p.id === 'sweetie-16'));
+  for (const m of DITHER_METHODS) $('method').add(new Option(m.label, m.id, false, m.id === 'bayer4'));
+
+  const px = await createPixelator();          // WebGL 2 through ShaderMate, CPU if unavailable
+  let image = new Image();
+  image.src = '../../assets/samples/dusk.svg';
+  await image.decode();
+  let result;
+
+  async function update() {
+    result = await px.process(image, {
+      size: { width: 120 },
+      palette: { source: 'builtin', id: $('palette').value },
+      dither: { method: $('method').value, strength: 0.8 },
+    });
+    result.toCanvas(1, { canvas: $('out') });     // CSS scales it up with image-rendering: pixelated
+    $('info').textContent = `${result.width} × ${result.height}, ${result.usedColors().length} colours, ${result.ms.toFixed(1)} ms on ${result.backend}`;
+  }
+
+  $('file').onchange = async e => { image = await createImageBitmap(e.target.files[0]); update(); };
+  $('palette').onchange = $('method').onchange = update;
+  $('save').onclick = async () => downloadBlob(await result.toBlob({ scale: 4 }), 'pixel-art.png');
+  update();
+</script>

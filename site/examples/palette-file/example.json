@@ -1,0 +1,1 @@
+{ "title": "Palette from a file", "description": "Paste a GIMP .gpl, a Lospec .hex list or any text with hex colours, and apply it.", "order": 6, "tags": ["Palettes", ".gpl"], "sample": "dusk", "preview": { "palette": { "source": "custom", "colors": ["#2b0f54", "#ab1f65", "#ff4f69", "#fff7f8", "#ff8142", "#ffda45", "#3368dc", "#49e7ec"] }, "dither": { "method": "atkinson" } } }

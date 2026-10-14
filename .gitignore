@@ -1,0 +1,7 @@
+node_modules/
+dist/
+_site/
+_screenshots/
+*.log
+.DS_Store
+.nodepod-check/

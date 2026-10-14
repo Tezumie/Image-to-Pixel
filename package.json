@@ -1,0 +1,92 @@
+{
+  "name": "image-to-pixel",
+  "version": "3.0.0",
+  "description": "Turn images and video into pixel art: dithering, palettes, batch and video. A WebGL engine (via ShaderMate) with a CPU fallback, plus a full editor.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Tezumie",
+  "homepage": "https://tezumie.github.io/Image-to-Pixel/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tezumie/Image-to-Pixel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tezumie/Image-to-Pixel/issues"
+  },
+  "keywords": [
+    "pixel-art",
+    "dithering",
+    "palette",
+    "quantization",
+    "floyd-steinberg",
+    "bayer",
+    "webgl",
+    "glsl",
+    "shader",
+    "gif",
+    "sprite-sheet",
+    "lospec"
+  ],
+  "main": "./dist/image-to-pixel.cjs",
+  "module": "./dist/image-to-pixel.esm.js",
+  "types": "./types/index.d.ts",
+  "unpkg": "./dist/image-to-pixel.min.js",
+  "jsdelivr": "./dist/image-to-pixel.min.js",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/image-to-pixel.esm.js",
+      "require": "./dist/image-to-pixel.cjs",
+      "default": "./dist/image-to-pixel.esm.js"
+    },
+    "./video": {
+      "types": "./types/video.d.ts",
+      "import": "./dist/video.esm.js",
+      "default": "./dist/video.esm.js"
+    },
+    "./editor": {
+      "types": "./types/editor.d.ts",
+      "import": "./dist/editor.esm.js",
+      "default": "./dist/editor.esm.js"
+    },
+    "./editor.css": "./dist/editor.css",
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": [
+    "./dist/editor.css",
+    "./dist/image-to-pixel.js",
+    "./dist/image-to-pixel.min.js"
+  ],
+  "files": [
+    "dist",
+    "lib",
+    "types",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "build:site": "npm run build && node scripts/build-site.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "dev": "node scripts/serve.mjs --dev",
+    "preview": "node scripts/serve.mjs",
+    "bluenoise": "node scripts/gen-bluenoise.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "clean": "node scripts/clean.mjs",
+    "test": "npm run build:site && node --test",
+    "prepublishOnly": "npm test",
+    "check:runtime": "node scripts/nodepod-check.mjs"
+  },
+  "dependencies": {
+    "shadermate": "^2.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12",
+    "highlight.js": "^11.12.0",
+    "marked": "^15.0.12"
+  }
+}
