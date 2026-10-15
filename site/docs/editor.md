@@ -18,6 +18,11 @@ The editor has three panes. The **library** on the left holds your files, preset
 
 Sources larger than 4096 px on a side are scaled down first. That is far more detail than any pixel-art output needs.
 
+## Names and saving
+
+- **Rename** a file by clicking its name in the header, with <kbd>F2</kbd>, by double-clicking it in the Files list, or from its ⋯ menu. Exports are named after it. The extension stays.
+- **Save** (next to Export) keeps every open file, its name and its settings in this browser, and they reopen next time. Nothing is uploaded. **Forget**, at the bottom of the Files list, removes them; clearing the site's data does too. Browsers limit this storage, so long videos may not fit.
+
 ## The canvas
 
 | Action | How |

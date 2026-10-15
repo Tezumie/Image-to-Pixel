@@ -6,7 +6,7 @@ Turn images and video into pixel art. A free, open-source editor that runs in yo
 
 - **16 dither methods**: Bayer 2–16, clustered dot, blue noise, custom matrices, and Floyd–Steinberg, Atkinson, Sierra, Burkes, Jarvis and Stucki diffusion.
 - **Palettes**: 24 built in, extracted from the image, picked by hand, or imported from .gpl, .hex, .pal, .txt, JSON and Lospec.
-- **Batches and video**: one set of settings for many files; frame-accurate video export to GIF, WebM, MP4 or PNG sequences.
+- **Batches and video**: one set of settings for many files; frame-accurate video export to GIF, WebM, MP4 or PNG sequences, keeping the soundtrack in WebM and MP4.
 - **Game-ready output**: integer-scaled and indexed PNGs, sprite sheets with JSON atlases, deduplicated tilesets.
 - **GPU first**: every step is a WebGL 2 shader pass run by [ShaderMate](https://github.com/Tezumie/ShaderMate). The CPU path gives identical pixels when WebGL isn't there, including in Node.
 

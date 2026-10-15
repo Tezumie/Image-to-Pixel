@@ -28,6 +28,18 @@ await forEachFrame(video, {
 const blob = await encoder.finish();     // video/mp4
 ```
 
+### With the source's audio
+
+```js
+import { createVideoEncoder, decodeAudio } from 'image-to-pixel/video';
+
+const audio = await decodeAudio(file, { start: 0, end: 4 });   // null if the file has no audio track
+encoder ??= await createVideoEncoder({ format: 'mp4', fps: 24, width: frame.width, height: frame.height, scale: 4, audio });
+// … add frames as above
+const blob = await encoder.finish();     // video and sound
+console.log(encoder.audioCodec);         // 'aac', 'opus', or null if this browser can't encode audio
+```
+
 ## forEachFrame(video, options)
 
 Seeks to the middle of each frame, waits until it is decoded, and calls `onFrame`. The next seek waits for `onFrame` to finish, so no frame is skipped or repeated however slow the processing is.
@@ -51,10 +63,26 @@ Seeks to the middle of each frame, waits until it is decoded, and calls `onFrame
 | `width`, `height` | Size of the frames you will add |
 | `scale` | Whole-number upscale applied to each frame (sizes are rounded up to even numbers) |
 | `bitrate` | Bits per second. Defaults to a value suited to flat pixel art |
+| `audio` | PCM to add as a soundtrack (from `decodeAudio`). It is cut to the video's length |
+| `audioBitrate` | Bits per second for the audio. Default 128000 |
 
-Returns `{ add(frame), finish() }`. `add` takes any `{ width, height, data }`, such as a result. `finish` resolves with a `Blob`.
+Returns `{ add(frame), finish(), audioCodec }`. `add` takes any `{ width, height, data }`, such as a result. `finish` resolves with a `Blob`. `audioCodec` is `'aac'` or `'opus'` when the soundtrack is included, and `null` when there is none or the browser can't encode audio (the video is still made).
 
-`encodeVideo(frames, options)` does the same for an array. `videoSupport()` reports `{ mp4, webm, webcodecs }` for the current browser.
+MP4 gets AAC when the browser can encode it and Opus otherwise; WebM always gets Opus.
+
+## decodeAudio(source, options)
+
+Decodes the audio track of a `File`, `Blob`, `ArrayBuffer`, URL or `<video>` element with Web Audio. Resolves with `{ sampleRate, numberOfChannels, channels, duration }`: planar `Float32Array`s, 48 kHz by default, at most two channels (surround is mixed down). Resolves with `null` when there is no audio track, the browser can't decode it, or there is no Web Audio (Node).
+
+| Option | |
+| --- | --- |
+| `start`, `end` | Seconds to keep |
+| `sampleRate` | Default 48000 (Opus needs 48 kHz) |
+| `channels` | 1 or 2. Default 2 |
+
+`encodeAudio(pcm, { codec | config, bitrate, maxDuration, onChunk })` encodes it with `AudioEncoder`. `findAudioConfig(codec)` returns a configuration this browser accepts (platform AAC encoders are picky about sample rate and bitrate, so a few common ones are tried) or `null`, and `audioCodecSupported(codec)` is its yes/no form.
+
+`encodeVideo(frames, options)` does the same for an array. `videoSupport()` reports `{ mp4, webm, webcodecs, aac, opus }` for the current browser.
 
 ## GIF
 
@@ -79,6 +107,9 @@ const bytes = mux.finish();   // Uint8Array, a complete .mp4
 | Codecs | H.264 | VP8, VP9, AV1 |
 | Layout | `moov` first, so it plays and seeks while downloading | SeekHead and Cues, so players can seek |
 | B-frames | Supported (composition offsets are written) | Not applicable |
-| Limits | One video track, under 4 GB, held in memory | One video track, held in memory |
+| Audio | Optional AAC or Opus track | Optional Opus track |
+| Limits | Under 4 GB, held in memory | Held in memory |
 
-`addChunk(chunk, meta)` takes `VideoEncoder` output directly. For MP4, configure the encoder with `avc: { format: 'avc' }` so it emits the decoder configuration the file needs. Lower-level `addSample()` / `addFrame()` take raw encoded frames with timestamps in microseconds.
+`addChunk(chunk, meta)` takes `VideoEncoder` output directly. For MP4, configure the encoder with `avc: { format: 'avc' }` so it emits the decoder configuration the file needs. If that configuration is malformed (Chrome on Windows has produced one with doubled NAL headers), the muxer rebuilds it from the SPS and PPS in the first keyframe. Lower-level `addSample()` / `addFrame()` take raw encoded frames with timestamps in microseconds.
+
+For sound, create the muxer with `audio: { codec, sampleRate, numberOfChannels }` and pass `AudioEncoder` output to `addAudioChunk(chunk, meta)`, or raw frames to `addAudioSample()` (MP4) / `addAudioFrame()` (WebM). For AAC in MP4, configure the encoder with `aac: { format: 'aac' }` so it emits the AudioSpecificConfig the file needs.

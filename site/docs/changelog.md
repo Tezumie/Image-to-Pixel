@@ -7,8 +7,16 @@ description: What changed between versions.
 
 # Changelog
 
-## Unreleased
+## 3.1.0
 
+- Video export keeps the sound: WebM and MP4 exports include the source's audio, cut to the exported range (Export → Animation → Keep audio). AAC or Opus in MP4, Opus in WebM, encoded with WebCodecs. In the library: `decodeAudio()` and the `audio` option of `createVideoEncoder()`; the MP4 and WebM muxers take an optional audio track.
+- Sound in the editor: videos with audio get a speaker button that opens a volume slider (and <kbd>M</kbd> to mute). Videos still start muted.
+- Video playback loops reliably: some MOV/MP4 files used to stall at the end and lose their sound after Chrome's built-in loop.
+- Rename files: click the name in the header, press F2, double-click it in the list, or use the ⋯ menu. Exports are named after it.
+- Save: keeps the open files with their names and settings in this browser (IndexedDB), and reopens them next time. Forget removes them.
+- Sharp video exports: WebM and MP4 are upscaled by a whole number to about Full HD by default (Export → Animation → Video size), so they no longer look blurry in players.
+- Narrow library panel: the tabs tighten up, then the inactive ones shrink to icons (names on hover) so nothing gets cut off.
+- MP4 export from Chrome on Windows plays in Windows Media Player and QuickTime: its encoder's malformed H.264 configuration (avcC) is now detected and rebuilt from the keyframe's own SPS/PPS.
 - Per-file settings: any file can have its own look. Switch in the inspector (All files / This file) or from a file's ⋯ menu, which also copies, pastes and applies settings to all files. Each file with its own settings has its own undo history.
 - Duplicate a file to compare two looks; reorder files with the menu or Alt+Shift+↑/↓.
 - Frame: crop to an aspect ratio (1:1, 4:3, 16:9, 9:16 …), zoom in and position the frame. GPU and CPU match exactly.

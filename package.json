@@ -1,6 +1,6 @@
 {
   "name": "image-to-pixel",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "Turn images and video into pixel art: dithering, palettes, batch and video. A WebGL engine (via ShaderMate) with a CPU fallback, plus a full editor.",
   "type": "module",
   "license": "MIT",

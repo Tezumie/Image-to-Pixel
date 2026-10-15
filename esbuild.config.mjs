@@ -30,7 +30,8 @@ const builds = [
   { ...common, entryPoints: ['lib/editor/styles/editor.css'], outfile: 'dist/editor.css', minify: true, external: ['*.woff2'] },
 ];
 
-if (!watch) { rmSync(new URL('dist', import.meta.url), { recursive: true, force: true }); }
+// retries: on Windows a file still open (dev server, antivirus) can make rmdir fail for a moment
+if (!watch) { rmSync(new URL('dist', import.meta.url), { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); }
 mkdirSync(new URL('dist', import.meta.url), { recursive: true });
 
 if (watch) {

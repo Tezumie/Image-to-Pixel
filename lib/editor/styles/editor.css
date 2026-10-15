@@ -74,7 +74,10 @@
 .itp-mark i:nth-child(6), .itp-mark i:nth-child(7) { opacity: 0.35; }
 .itp-top .sep { width: 1px; height: 18px; background: var(--line); margin: 0 6px; flex: none; }
 .itp-file { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--text-2); }
-.itp-file .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 28ch; }
+.itp-file .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 28ch; cursor: text; padding: 2px 4px; margin: 0 -4px; border-radius: var(--r-sm); }
+.itp-file .name:hover { background: var(--raised); color: var(--text); }
+.itp-file .name[hidden] { display: none; }
+.itp-name-input { height: 26px; min-width: 0; max-width: 40ch; padding: 0 6px; border: 1px solid var(--accent); border-radius: var(--r-sm); background: var(--bg); color: var(--text); font: inherit; outline: none; }
 .itp-file .meta { color: var(--faint); white-space: nowrap; }
 .itp-top .spacer { flex: 1; }
 .itp-zoom { min-width: 64px; justify-content: space-between; }
@@ -109,6 +112,21 @@
 .itp-seg button[aria-selected="true"], .itp-seg button[aria-pressed="true"] { background: var(--panel); color: var(--text); box-shadow: 0 0 0 1px var(--line-strong); }
 :root[data-theme="dark"] .itp-seg button[aria-selected="true"], :root[data-theme="dark"] .itp-seg button[aria-pressed="true"] { background: var(--raised-2); }
 .itp-seg .count { color: var(--faint); font-variant-numeric: tabular-nums; }
+.itp-lib { container-type: inline-size; }
+/* the library tabs shrink in steps as the panel narrows: tighter spacing and smaller words first,
+   then only the open tab keeps its word and the others become icons (their names stay as tooltips) */
+.itp-seg button span { overflow: hidden; text-overflow: ellipsis; }
+.itp-seg button svg { flex: none; }
+@container (max-width: 310px) {
+  .itp-lib .itp-seg button { gap: 4px; padding: 0 5px; font-size: 12px; }
+}
+@container (max-width: 250px) {
+  .itp-lib .itp-seg button { flex: 0 0 auto; min-width: 34px; }
+  .itp-lib .itp-seg button[aria-selected="true"] { flex: 1 1 auto; }
+  .itp-lib .itp-seg button:not([aria-selected="true"]) span {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+}
 .itp-seg.compact { width: auto; }
 
 /* search field */
@@ -230,6 +248,21 @@
 .itp-time { font-variant-numeric: tabular-nums; color: var(--text-2); font-size: var(--fs-sm); white-space: nowrap; min-width: 108px; }
 .itp-time span { color: var(--faint); }
 .itp-scrub { flex: 1; }
+.itp-sound { position: relative; display: flex; align-items: center; }
+.itp-sound[hidden] { display: none; }
+/* volume: a vertical slider that pops up above the speaker button (all the way down = muted) */
+.itp-volpop {
+  position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 6px 10px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-pop);
+  font-size: var(--fs-xs); color: var(--muted); min-width: 36px;
+}
+.itp-volpop[hidden] { display: none; }
+.itp-vslider { --v: 0%; width: 28px; height: 108px; display: flex; justify-content: center; cursor: pointer; touch-action: none; border-radius: var(--r-sm); }
+.itp-vslider .track { position: relative; width: 4px; height: 100%; border-radius: 2px; background: var(--line-strong); }
+.itp-vslider .fill { position: absolute; left: 0; right: 0; bottom: 0; height: var(--v); border-radius: 2px; background: var(--accent); }
+.itp-vslider .thumb { position: absolute; left: 50%; bottom: var(--v); width: 12px; height: 12px; border-radius: 50%; background: var(--text); transform: translate(-50%, 50%); box-shadow: 0 0 0 2px var(--panel); }
+.itp-vslider:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---- inspector --------------------------------------------------------- */
 .itp-insp-head { padding: 12px 14px 0; display: flex; flex-direction: column; gap: 10px; }
