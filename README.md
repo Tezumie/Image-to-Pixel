@@ -1,5 +1,8 @@
 # Image-to-Pixel
 
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-♥-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Tezumie)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Turn images and video into pixel art. A free, open-source editor that runs in your browser, and the engine behind it as an npm package.
 
 **[Open the editor](https://tezumie.github.io/Image-to-Pixel/editor/)** · [Docs](https://tezumie.github.io/Image-to-Pixel/docs/) · [Examples](https://tezumie.github.io/Image-to-Pixel/examples/) · [Classic 2.x editor](https://tezumie.github.io/Image-to-Pixel/classic/)
