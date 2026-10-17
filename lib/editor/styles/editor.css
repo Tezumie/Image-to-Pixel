@@ -248,6 +248,10 @@
 .itp-time { font-variant-numeric: tabular-nums; color: var(--text-2); font-size: var(--fs-sm); white-space: nowrap; min-width: 108px; }
 .itp-time span { color: var(--faint); }
 .itp-scrub { flex: 1; }
+.itp-timeline-preview { position: absolute; z-index: 25; pointer-events: none; padding: 5px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--panel); color: var(--text); box-shadow: var(--shadow-pop); }
+.itp-timeline-image { position: relative; display: grid; place-items: center; height: 104px; overflow: hidden; border-radius: var(--r-sm); background: var(--raised); color: var(--muted); font-size: var(--fs-xs); }
+.itp-timeline-image canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.itp-timeline-time { display: block; padding: 5px 0 1px; text-align: center; font-size: var(--fs-xs); }
 .itp-sound { position: relative; display: flex; align-items: center; }
 .itp-sound[hidden] { display: none; }
 /* volume: a vertical slider that pops up above the speaker button (all the way down = muted) */
@@ -374,6 +378,39 @@
 .itp-dialog header h2 { margin: 0; font-size: var(--fs-lg); font-weight: 600; }
 .itp-dialog .content { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
 .itp-dialog footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
+/* Video frame selection replaces the main preview canvas. */
+.itp-storyboard { display: flex; flex: 1; min-width: 0; min-height: 0; }
+.itp-story-overlay { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px; pointer-events: none; }
+.itp-story-overlay > .itp-float { position: static; pointer-events: auto; }
+.itp-story-head { min-width: 0; max-width: 100%; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 10px; min-height: 34px; color: var(--muted); font-size: var(--fs-xs); }
+.itp-story-head > .num { white-space: nowrap; color: var(--text); }
+.itp-story-status { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.itp-story-actions { max-width: 100%; margin-left: auto; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.itp-story-zoom { display: flex; align-items: center; gap: 3px; }
+.itp-story-zoom span { min-width: 38px; text-align: center; font-size: var(--fs-xs); color: var(--muted); }
+.itp-story-grid { position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; background: var(--stage); touch-action: none; }
+.itp-story-canvas { display: block; width: 100%; height: 100%; cursor: grab; image-rendering: pixelated; outline: none; }
+.itp-story-canvas:active { cursor: grabbing; }
+.itp-transport.itp-transport-tiled { flex: none; height: auto; min-height: 54px; gap: 10px; padding: 8px 12px; }
+.itp-story-time { display: flex; flex: none; align-items: center; gap: 5px; font-size: var(--fs-xs); color: var(--muted); }
+.itp-story-time input { width: 76px; padding: 0 5px; font-size: var(--fs-xs); }
+.itp-transport-tiled > .num { font-size: var(--fs-xs); white-space: nowrap; }
+/* Pointer drags are handled in JS (pointer-events: none keeps the native thumbs inert), so the
+   handles behave the same in every browser. */
+.itp-story-range { --from: 0%; --to: 100%; position: relative; flex: 1; min-width: 48px; height: 30px; cursor: default; touch-action: none; user-select: none; }
+.itp-story-range-track { position: absolute; left: 7px; right: 7px; top: 13px; height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--raised-2) var(--from), var(--accent) var(--from), var(--accent) var(--to), var(--raised-2) var(--to)); }
+.itp .itp-story-range input[type="range"] { position: absolute; inset: 0; width: 100%; height: 30px; margin: 0; pointer-events: none; background: transparent; }
+.itp .itp-story-range input::-webkit-slider-runnable-track { background: transparent; }
+.itp .itp-story-range input::-moz-range-track, .itp .itp-story-range input::-moz-range-progress { background: transparent; }
+/* match the WebKit thumb size so both engines place the thumbs on the same track geometry */
+.itp .itp-story-range input::-moz-range-thumb { width: 14px; height: 14px; }
+@media (max-width: 680px) {
+  .itp-story-overlay { left: 8px; right: 8px; bottom: 8px; }
+  .itp-story-status { display: none; }
+  .itp-transport.itp-transport-tiled { flex-wrap: wrap; gap: 6px 10px; }
+  .itp-story-range { order: -1; flex-basis: 100%; }
+  .itp-transport-tiled > .num { margin-left: auto; }
+}
 .itp-keys { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 24px; }
 .itp-keys div { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); color: var(--text-2); }
 .itp-keys div span:last-child { display: flex; gap: 3px; }

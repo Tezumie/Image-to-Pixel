@@ -20,9 +20,37 @@ Videos start muted. Unmuting and the volume are remembered for every video you o
 
 While it plays, each frame is processed as it is shown. When paused, the current frame is shown exactly. The frame rate is detected when the file opens and shown at the right of the bar.
 
+Hover over the bottom timeline to see a small processed-frame preview and its timestamp, like a video player. This also works on the **Frame selection** interval bar, which keeps a normal arrow on the track and shows a horizontal resize cursor over each handle. Drag the handles to adjust the interval; clicking the track does not change it. Hovering never seeks the original video or changes the selected interval.
+
 ## Exporting
 
 In **Export → Animation**, choose the format, frames per second and the start and end time.
+
+## Selecting frames in the main preview
+
+Turn on **Export → Animation → Frame selection** to replace the main preview with the tiled frame canvas. There are no separate preview tabs. The playback scrubber becomes a two-handle **In / Out** time-range selector, initially using Animation's **Start / End** times. If those fields still contain the untouched full-clip default, a video longer than three seconds starts at `0–3s` instead. Drag its handles, or enter precise times in either place: Start / End and the interval bar stay synchronised in both directions, snapping to source frame boundaries. An empty or reversed **End** runs to the end of the clip.
+
+For a long video, the first activation uses the first three seconds so the canvas stays responsive. Videos shorter than three seconds load in full. Adjust the interval to load more frames; an explicitly chosen Animation range is preserved. Intervals longer than 1,000 frames load only their first 1,000: narrow the range to reach the rest.
+
+Frame decoding is debounced by 300 ms. While dragging, only the interval and time fields change; the existing frames stay visible until the drag ends and the new interval is ready to load. Exports stay disabled until the interval has finished loading and at least one frame is selected.
+
+Each row contains half the video's original FPS, rounded to the nearest whole frame (at least one): 30 fps gives 15 frames per row; 60 fps gives 30. All source frames in the chosen interval are shown. Animation's FPS changes playback speed, not the source frame count or row layout.
+
+Click frames to toggle selection, or use **Select all** and **Clear**. Drag the canvas to pan; use the zoom buttons, the main zoom menu, <kbd>+</kbd> / <kbd>-</kbd>, or the mouse wheel to zoom around the pointer.
+
+The zoom menu offers the same **1×, 2×, 4×, 8×, 16× and 32×** presets as **Preview**. Buttons, keyboard shortcuts and the wheel use Preview's stepped zoom levels, while pinch gestures remain smooth. **Fit** restores the full frame grid.
+
+Frame status, selection counts and actions float over the bottom of the canvas, like the controls in **Preview**. Fitting the canvas leaves room above these controls so they do not cover the fitted frames or animation.
+
+The **Play selected** icon (or <kbd>Space</kbd>) adds an animated preview beside the frame grid **in the same canvas**, then pans the view to it without changing the zoom. The animation uses the same width and zoom scale as a regular frame, with a separate title row above it. The icon changes to **Pause selected** during playback, with its action shown on hover. Frames remain on the canvas while the selection loops in chronological order at **Animation → Frames per second**. Changing that FPS immediately updates playback without reloading the source frames. Both the animation and the frames move and scale together. Pause keeps the animation tile visible; double-click or press <kbd>F</kbd> to fit both the frames and the animation into view. Changing selection updates the animation without moving the view again; clearing the selection removes it.
+
+**Compare with original** and **Pixel grid**, including their <kbd>C</kbd> / <kbd>G</kbd> shortcuts, are disabled in frame-selection mode. Turning **Frame selection** off restores these controls and preserves their previous settings.
+
+With **Frame selection** on, **Export animation** and **Sprite sheet → Download sprite sheet** both use only the selected, processed frames, in chronological order and at Animation's FPS. Sprite sheets use their normal columns, padding and PNG export scale, and download as one PNG plus a JSON atlas in a ZIP. There is no separate build button on the canvas. Selection is preserved while adjusting processing settings, so the thumbnails and exported frames keep the same look. Selected-frame video exports omit source audio, since a discontinuous selection may not match the original soundtrack. **PNG**, **Copy image** and **Tileset** are disabled while **Frame selection** is on: they belong to the main preview, which the tiles replace.
+
+Turn **Frame selection** off to restore the normal preview and export workflow, without seeking the original video. Animation and sprite sheet exports then use the original video interval/FPS or the chosen image files as before.
+
+## Export formats
 
 | Format | Notes |
 | --- | --- |

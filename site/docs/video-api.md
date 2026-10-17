@@ -49,6 +49,7 @@ Seeks to the middle of each frame, waits until it is decoded, and calls `onFrame
 | `fps` | Frames per second to sample |
 | `start`, `end` | Seconds. `end` defaults to the duration |
 | `maxFrames` | Upper bound |
+| `times` | Optional explicit timestamps (seconds), in the order to visit |
 | `signal` | An `AbortSignal` to cancel |
 | `onFrame({ index, time, total })` | May return a promise |
 
