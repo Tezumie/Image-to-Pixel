@@ -66,7 +66,8 @@ test('the animation sits beside the frame grid without replacing or overlapping 
   assert.equal(combined.cols, frames.cols);
   assert.ok(combined.animation.x > frames.width);
   assert.equal(combined.animation.y, 0);
-  assert.equal(combined.width, combined.animation.x + combined.animation.w);
+  assert.equal(combined.width, Math.max(combined.animation.x + combined.animation.w,
+    combined.animation.controls.x + combined.animation.controls.w));
   assert.ok(combined.height >= combined.animation.h);
   assert.ok(combined.height >= frames.height);
   assert.equal(frames.animation, null);
@@ -85,11 +86,26 @@ test('shared canvas layout uses half the source FPS per row and contains the ani
   }
 });
 
-test('animation uses the regular frame width, with a separate title row', () => {
+test('animation uses the regular frame width, with playback controls below and no title row', () => {
   const frame = storyboardLayout(30, 1);
   const { animation } = storyboardLayout(30, 1, true);
   assert.equal(animation.w, frame.width);
-  assert.equal(animation.h, frame.height + 24);
+  assert.equal(animation.controls.y, frame.height - 18 + 10);
+  assert.equal(animation.h, animation.controls.y + animation.controls.h);
+  assert.equal(animation.x + animation.w / 2, animation.controls.x + animation.controls.w / 2);
+});
+
+test('animation transport shares world coordinates and stays clear of the grid', () => {
+  for (const count of [1, 2, 20, 90]) {
+    const { width, height, animation } = storyboardLayout(30, count, true);
+    const { controls } = animation;
+    assert.equal(controls.w, 128);
+    assert.equal(controls.h, 24);
+    assert.ok(controls.x > storyboardLayout(30, count).width);
+    assert.ok(controls.x + controls.w <= width + 1e-6);
+    assert.ok(controls.y + controls.h <= height + 1e-6);
+    assert.ok(Math.abs(animation.x + animation.w / 2 - controls.x - controls.w / 2) < 1e-6);
+  }
 });
 
 class MockVideo extends EventTarget {
