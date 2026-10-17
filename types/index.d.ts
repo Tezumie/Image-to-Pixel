@@ -192,5 +192,7 @@ export function estimateFps(video: HTMLVideoElement, fallback?: number): Promise
 export function frameTimes(opts: { duration: number; fps: number; start?: number; end?: number; maxFrames?: number }): number[];
 export function forEachFrame(video: HTMLVideoElement, opts: {
   fps: number; start?: number; end?: number; maxFrames?: number; signal?: AbortSignal;
+  /** Explicit frame timestamps (seconds), in selection order. */
+  times?: number[];
   onFrame: (info: { index: number; time: number; total: number }) => unknown;
 }): Promise<number>;
