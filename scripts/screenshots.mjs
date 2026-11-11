@@ -7,6 +7,7 @@ import { createServer } from 'node:http';
 import { readFileSync, statSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join, extname, normalize, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import assert from 'node:assert/strict';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, '_site');
@@ -61,6 +62,83 @@ const editorReady = async (page, sample) => {
     await page.evaluate(() => window.itpEditor.idle());
   }
 };
+
+async function checkSelectedAnimation(page) {
+  await page.evaluate(async () => {
+    const item = window.itpEditor.app.current;
+    if (item.fpsReady) await item.fpsReady;
+    item.source.pause();
+    item.fps = 10; // The generated fixture is encoded at exactly 10 fps.
+  });
+  const sourceTime = await page.evaluate(() => window.itpEditor.app.current.source.currentTime);
+  await page.getByRole('tab', { name: 'Export', exact: true }).click();
+  const header = page.getByRole('button', { name: 'Animation', exact: true });
+  if (await header.getAttribute('aria-expanded') === 'false') await header.click();
+  const mode = page.getByRole('switch', { name: 'Frame selection', exact: true });
+  await mode.check();
+  await page.waitForFunction(() => window.itpEditor.app.frameSelection()?.complete, null, { timeout: 90000 });
+  await page.getByRole('button', { name: 'Select all', exact: true }).click();
+  const total = await page.evaluate(() => window.itpEditor.app.frameSelection().renderedFrames.length);
+  await page.evaluate(() => window.itpEditor.app.setAnimationFps(30));
+  await page.getByRole('button', { name: 'Play selected', exact: true }).click();
+  const controls = page.getByRole('group', { name: 'Selected animation playback', exact: true });
+  const previous = controls.getByRole('button', { name: 'Previous selected frame', exact: true });
+  const next = controls.getByRole('button', { name: 'Next selected frame', exact: true });
+  const counter = controls.locator('.itp-story-animation-count');
+  const playback = await controls.evaluate(async (el, total) => {
+    const frames = new Set();
+    let disabled = false;
+    const sample = () => {
+      frames.add(Number(el.querySelector('.itp-story-animation-count > span').textContent));
+      disabled ||= [...el.querySelectorAll('button')].some(button => button.disabled);
+    };
+    const observer = new MutationObserver(sample);
+    observer.observe(el, { subtree: true, childList: true, attributes: true, attributeFilter: ['disabled'] });
+    sample();
+    await new Promise(resolve => setTimeout(resolve, (total + 1) / 30 * 1000 + 200));
+    observer.disconnect();
+    return { disabled, frames: [...frames] };
+  }, total);
+  assert.equal(playback.disabled, false, 'autoplay does not flash disabled step buttons');
+  assert.ok(playback.frames.includes(1) && playback.frames.includes(total), 'playback visits both boundaries');
+  await controls.getByRole('button', { name: 'Pause selected animation', exact: true }).click();
+  for (let i = 0; i < total && await counter.textContent() !== `1 / ${total}`; i++) await previous.click();
+  assert.equal(await counter.textContent(), `1 / ${total}`);
+  assert.equal(await previous.isEnabled(), true);
+  await previous.click();
+  assert.equal(await counter.textContent(), `${total} / ${total}`, 'previous wraps to the last selected frame');
+  await next.click();
+  assert.equal(await counter.textContent(), `1 / ${total}`, 'next wraps to the first selected frame');
+  await next.click();
+  assert.equal(await counter.textContent(), `2 / ${total}`);
+  await page.locator('.itp-story-canvas').focus();
+  await page.keyboard.press(',');
+  assert.equal(await counter.textContent(), `1 / ${total}`);
+  await page.keyboard.press('.');
+  assert.equal(await counter.textContent(), `2 / ${total}`);
+  for (let i = 0; i < total && await counter.textContent() !== `${total} / ${total}`; i++) await next.click();
+  assert.equal(await counter.textContent(), `${total} / ${total}`);
+  assert.equal(await next.isEnabled(), true);
+  await controls.getByRole('button', { name: 'Play selected animation', exact: true }).click();
+  await next.click();
+  assert.equal(await controls.getByRole('button', { name: 'Play selected animation', exact: true }).getAttribute('aria-pressed'), 'false', 'stepping pauses playback');
+  const paused = await counter.textContent();
+  await page.waitForTimeout(150);
+  assert.equal(await counter.textContent(), paused);
+  assert.equal(await page.evaluate(() => window.itpEditor.app.current.source.currentTime), sourceTime, 'selected animation never seeks the source');
+  for (const zoom of [1, 2]) {
+    await page.getByRole('button', { name: 'Zoom', exact: true }).click();
+    await page.getByRole('menuitem', { name: `${zoom}\u00d7`, exact: true }).click();
+    const bar = await controls.boundingBox(), button = await next.boundingBox();
+    assert.ok(Math.abs(bar.width - 128 * zoom) < 0.01, 'control bar scales with the canvas');
+    assert.ok(Math.abs(bar.height - 24 * zoom) < 0.01, 'control bar height scales with the canvas');
+    assert.ok(Math.abs(button.width - 22 * zoom) < 0.01, 'playback buttons scale with the canvas');
+  }
+  await page.screenshot({ path: join(SHOTS, 'editor-selected-animation-dark.png') });
+  await page.getByRole('button', { name: 'Clear', exact: true }).click();
+  assert.equal(await controls.isVisible(), false);
+  await mode.uncheck();
+}
 
 for (const theme of ['dark', 'light']) {
   await shot('landing', '', { theme, prepare: p => p.waitForFunction(() => document.querySelector('.demo-meta')?.textContent) });
@@ -149,6 +227,7 @@ await shot('example-basic', 'examples/basic/', { prepare: p => p.waitForFunction
     await page.keyboard.press('.'); await page.keyboard.press('.');
     await page.waitForTimeout(300);
     await page.screenshot({ path: join(SHOTS, 'editor-video-dark.png') });
+    await checkSelectedAnimation(page);
     got.push(await download(() => window.itpEditor.app.exportAnimation({ source: 'video', format: 'gif', fps: 10, start: 0, end: 2 })));
     got.push(await download(() => window.itpEditor.app.exportAnimation({ source: 'video', format: 'webm', fps: 10, start: 0, end: 2 })));
     // MP4 needs an H.264 encoder, which open-source Chromium builds may not have
